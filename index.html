@@ -1,0 +1,591 @@
+
+<style>
+:root{--bg:#060c1a;--bg2:#0d1528;--bg3:#111d35;--border:rgba(255,255,255,0.07);--text:#e2e8f0;--muted:#4a5568;--font:'Courier New',monospace}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--font)}
+.app{display:flex;flex-direction:column;height:100vh;min-height:640px;background:var(--bg)}
+header{background:var(--bg2);border-bottom:1px solid var(--border);padding:9px 14px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-shrink:0}
+.logo{display:flex;align-items:center;gap:9px}
+.logo-icon{width:30px;height:30px;border-radius:7px;background:linear-gradient(135deg,#f59e0b,#ef4444);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.logo-name{font-size:16px;font-weight:900;background:linear-gradient(90deg,#f59e0b,#ef4444);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.logo-sub{font-size:9px;color:var(--muted)}
+.tg{display:flex;gap:3px;background:rgba(255,255,255,0.04);border-radius:6px;padding:3px}
+.tb{padding:4px 9px;border-radius:4px;border:none;cursor:pointer;font-size:10px;font-family:var(--font);transition:all .2s;background:transparent;color:var(--muted)}
+.tb.on{background:rgba(245,158,11,0.2);color:#f59e0b;font-weight:700}
+.main{display:grid;grid-template-columns:220px 1fr 268px;flex:1;gap:8px;padding:8px 10px;min-height:0;overflow:hidden}
+.panel{background:var(--bg2);border:1px solid var(--border);border-radius:11px;display:flex;flex-direction:column;overflow:hidden}
+.ph{padding:9px 11px 0;font-size:9px;color:var(--muted);letter-spacing:1.5px;font-weight:700;flex-shrink:0;display:flex;justify-content:space-between;align-items:center;padding-right:11px}
+.pb{flex:1;overflow-y:auto;padding:7px 9px 9px;display:flex;flex-direction:column}
+.pb::-webkit-scrollbar{width:2px}
+.pb::-webkit-scrollbar-thumb{background:#1e2d4a;border-radius:2px}
+.si{position:relative;margin-bottom:7px;flex-shrink:0}
+.si input{width:100%;padding:5px 9px 5px 26px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:10px;font-family:var(--font);outline:none}
+.si input::placeholder{color:var(--muted)}
+.si span{position:absolute;left:8px;top:6px;font-size:11px;color:var(--muted)}
+.pi{display:flex;align-items:center;gap:6px;padding:4px 6px;border-radius:6px;cursor:pointer;border:1px solid transparent;transition:all .15s;margin-bottom:2px}
+.pi:hover{background:rgba(255,255,255,0.03)}
+.pd{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.pn{font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+.pr{font-size:8px;color:var(--muted)}
+.pb2{font-size:9px;color:var(--muted);flex-shrink:0}
+.sb{width:13px;height:13px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:#000;flex-shrink:0}
+.map-wrap{border-radius:11px;overflow:hidden;position:relative;background:#040d1a}
+#mc{display:block;width:100%;height:100%;cursor:crosshair}
+.ot{position:absolute;top:9px;left:9px;display:flex;flex-wrap:wrap;gap:3px;z-index:10;max-width:calc(100% - 18px)}
+.tag{padding:2px 8px;border-radius:20px;font-size:8px;font-family:var(--font);font-weight:700;color:#000}
+.leg{position:absolute;bottom:9px;right:9px;background:rgba(4,13,26,0.94);border:1px solid var(--border);border-radius:9px;padding:9px 11px;z-index:10}
+.lt{font-size:7px;color:var(--muted);letter-spacing:1px;margin-bottom:6px;font-weight:700}
+.lr{display:flex;align-items:center;gap:5px;margin-bottom:3px}
+.lb{width:20px;height:4px;border-radius:1px;flex-shrink:0}
+.ll{font-size:8px;color:var(--muted);font-family:var(--font)}
+.tt{position:absolute;z-index:30;pointer-events:none;background:rgba(4,13,26,0.98);border-radius:9px;padding:9px 12px;width:190px;border:1px solid rgba(255,255,255,0.07)}
+.ttn{font-size:12px;font-weight:700;color:var(--text);font-family:var(--font)}
+.tts{font-size:9px;color:var(--muted);font-family:var(--font);margin:2px 0 7px}
+.ttg{display:grid;grid-template-columns:1fr 1fr;gap:2px}
+.tti{font-size:9px;color:#94a3b8;font-family:var(--font)}
+.ttb{margin-top:7px;padding-top:7px;border-top:1px solid rgba(255,255,255,0.05);font-size:9px;font-weight:700;font-family:var(--font)}
+.bts{display:flex;gap:3px;margin-bottom:9px;flex-shrink:0}
+.bt{padding:3px 8px;border-radius:20px;border:none;cursor:pointer;font-size:9px;font-family:var(--font);transition:all .2s;background:rgba(255,255,255,0.04);color:var(--muted)}
+.bt.on{background:rgba(245,158,11,0.2);color:#f59e0b;font-weight:700}
+.cc{border-radius:8px;padding:11px;margin-bottom:7px;border-left:3px solid}
+.ch{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:7px}
+.cn{font-size:12px;font-weight:700;font-family:var(--font);color:var(--text)}
+.crg{font-size:9px;font-family:var(--font)}
+.ca{font-size:16px;font-weight:700;font-family:var(--font)}
+.cs{font-size:8px;color:var(--muted);font-family:var(--font)}
+.pb3{height:3px;background:rgba(255,255,255,0.05);border-radius:2px;margin-bottom:9px;overflow:hidden}
+.pf{height:100%;border-radius:2px;transition:width .4s ease}
+.cg{display:grid;grid-template-columns:1fr 1fr;gap:2px}
+.ci{font-size:9px;display:flex;justify-content:space-between}
+.cl{color:var(--muted)}
+.cv{color:#94a3b8;font-family:var(--font)}
+.es{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--muted);text-align:center;gap:5px}
+.es .bi{font-size:28px}
+.es .mg{font-size:11px;font-family:var(--font)}
+.es .ht{font-size:9px;color:#1e2d4a;font-family:var(--font)}
+.rb{background:none;border:none;color:var(--muted);cursor:pointer;font-size:9px;font-family:var(--font);padding:0}
+.sr{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px;flex-shrink:0;padding:0 10px}
+.sc{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:6px 10px}
+.sl{font-size:8px;color:var(--muted);letter-spacing:1px;font-weight:700}
+.sv{font-size:12px;font-family:var(--font);color:var(--text);margin-top:1px}
+.mh{position:absolute;bottom:9px;left:9px;font-size:8px;color:rgba(255,255,255,0.15);font-family:var(--font)}
+.cmp2{background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:8px;padding:11px;margin-top:3px}
+.cmt{font-size:8px;color:var(--muted);letter-spacing:1px;font-weight:700;margin-bottom:9px}
+.cbr{display:flex;align-items:center;gap:5px;margin-bottom:2px}
+.cbn{font-size:8px;color:var(--muted);width:65px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex-shrink:0}
+.cbw{flex:1;height:4px;background:rgba(255,255,255,0.04);border-radius:2px;overflow:hidden}
+.cbf{height:100%;border-radius:2px;transition:width .4s ease}
+.cbv{font-size:8px;color:var(--muted);font-family:var(--font);width:42px;text-align:right;flex-shrink:0}
+.lspin{display:flex;align-items:center;justify-content:center;height:100%;color:var(--muted);font-size:11px;font-family:var(--font);gap:8px}
+</style>
+
+<div class="app">
+<header>
+  <div class="logo">
+    <div class="logo-icon">🇹🇭</div>
+    <div>
+      <div class="logo-name">ThaiLifeCost</div>
+      <div class="logo-sub">Carte interactive · 77 provinces · Coût de la vie</div>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:8px">
+    <div class="tg">
+      <button class="tb on" id="btn-p" onclick="setView('provinces')">Coût de vie</button>
+      <button class="tb" id="btn-r" onclick="setView('regions')">5 Régions</button>
+    </div>
+    <div style="padding:3px 9px;border-radius:5px;font-size:8px;font-family:var(--font);color:#4ade80;background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.15)">● LIVE</div>
+  </div>
+</header>
+
+<div style="flex-shrink:0;padding:7px 10px 0">
+  <div class="sr" id="stats-row"></div>
+</div>
+
+<div class="main">
+  <div class="panel">
+    <div class="ph">PROVINCES</div>
+    <div class="pb">
+      <div class="si"><span>⌕</span><input id="search" placeholder="Rechercher..." oninput="renderList()"></div>
+      <div id="prov-list" style="flex:1;overflow-y:auto"></div>
+    </div>
+  </div>
+
+  <div class="map-wrap" id="map-wrap">
+    <div class="ot" id="sel-tags"></div>
+    <canvas id="mc"></canvas>
+    <div class="leg" id="legend"></div>
+    <div class="mh">Scroll zoom · Drag · Click select</div>
+    <div class="tt" id="tooltip" style="display:none"></div>
+    <div id="map-loading" class="lspin" style="position:absolute;inset:0;background:#040d1a;z-index:20">
+      <span>⟳</span><span>Chargement de la carte...</span>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="ph">
+      <span>COMPARAISON (<span id="sel-count">0</span>/4)</span>
+      <button class="rb" onclick="clearSel()">✕ Reset</button>
+    </div>
+    <div class="pb" id="comparison-panel"></div>
+  </div>
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script>
+const DATA={
+"Bangkok":{idx:92,rent:18500,meal:120,trans:45,groc:3200,util:1800,reg:"Bangkok"},
+"Phuket":{idx:88,rent:22000,meal:150,trans:55,groc:3800,util:2200,reg:"South"},
+"Nonthaburi":{idx:78,rent:15000,meal:110,trans:42,groc:3100,util:1700,reg:"Bangkok"},
+"Koh Samui":{idx:80,rent:16000,meal:130,trans:50,groc:3400,util:2000,reg:"South"},
+"Pattaya":{idx:75,rent:14000,meal:100,trans:40,groc:3000,util:1600,reg:"Central"},
+"Samut Prakan":{idx:74,rent:13500,meal:98,trans:40,groc:2950,util:1550,reg:"Bangkok"},
+"Krabi":{idx:72,rent:13000,meal:95,trans:38,groc:2900,util:1500,reg:"South"},
+"Pathum Thani":{idx:71,rent:12500,meal:90,trans:38,groc:2850,util:1480,reg:"Bangkok"},
+"Hua Hin":{idx:70,rent:12000,meal:88,trans:36,groc:2800,util:1450,reg:"Central"},
+"Chon Buri":{idx:68,rent:11000,meal:82,trans:35,groc:2750,util:1400,reg:"Central"},
+"Phang Nga":{idx:65,rent:10500,meal:80,trans:35,groc:2700,util:1380,reg:"South"},
+"Samut Sakhon":{idx:65,rent:10000,meal:75,trans:34,groc:2650,util:1350,reg:"Bangkok"},
+"Rayong":{idx:62,rent:9500,meal:72,trans:33,groc:2600,util:1300,reg:"Central"},
+"Nakhon Pathom":{idx:60,rent:9000,meal:68,trans:31,groc:2500,util:1250,reg:"Central"},
+"Chachoengsao":{idx:60,rent:9000,meal:68,trans:31,groc:2500,util:1250,reg:"Central"},
+"Chiang Mai":{idx:58,rent:8500,meal:65,trans:30,groc:2400,util:1200,reg:"North"},
+"Surat Thani":{idx:58,rent:8500,meal:66,trans:30,groc:2400,util:1200,reg:"South"},
+"Hat Yai":{idx:55,rent:7800,meal:60,trans:28,groc:2300,util:1150,reg:"South"},
+"Phetchaburi":{idx:55,rent:7800,meal:62,trans:28,groc:2300,util:1150,reg:"Central"},
+"Samut Songkhram":{idx:54,rent:7500,meal:58,trans:27,groc:2250,util:1125,reg:"Central"},
+"Prachuap Khiri Khan":{idx:52,rent:7000,meal:58,trans:27,groc:2200,util:1100,reg:"Central"},
+"Saraburi":{idx:52,rent:7000,meal:56,trans:27,groc:2200,util:1100,reg:"Central"},
+"Nakhon Nayok":{idx:52,rent:7000,meal:56,trans:27,groc:2200,util:1100,reg:"Central"},
+"Chumphon":{idx:50,rent:6600,meal:53,trans:26,groc:2130,util:1065,reg:"South"},
+"Ayutthaya":{idx:50,rent:6500,meal:54,trans:26,groc:2150,util:1080,reg:"Central"},
+"Prachin Buri":{idx:50,rent:6600,meal:54,trans:26,groc:2150,util:1075,reg:"Central"},
+"Ratchaburi":{idx:50,rent:6700,meal:54,trans:26,groc:2150,util:1075,reg:"Central"},
+"Nakhon Si Thammarat":{idx:48,rent:6200,meal:52,trans:25,groc:2100,util:1050,reg:"South"},
+"Ranong":{idx:48,rent:6300,meal:52,trans:25,groc:2100,util:1050,reg:"South"},
+"Lopburi":{idx:46,rent:6000,meal:50,trans:24,groc:1980,util:990,reg:"Central"},
+"Sa Kaeo":{idx:46,rent:6000,meal:50,trans:24,groc:1980,util:990,reg:"Central"},
+"Trang":{idx:46,rent:6100,meal:50,trans:24,groc:2000,util:1000,reg:"South"},
+"Satun":{idx:44,rent:5800,meal:48,trans:23,groc:1920,util:960,reg:"South"},
+"Ang Thong":{idx:44,rent:5700,meal:46,trans:23,groc:1900,util:950,reg:"Central"},
+"Kanchanaburi":{idx:44,rent:5800,meal:48,trans:23,groc:1900,util:950,reg:"Central"},
+"Suphan Buri":{idx:45,rent:5900,meal:47,trans:23,groc:1920,util:960,reg:"Central"},
+"Nakhon Sawan":{idx:43,rent:5600,meal:45,trans:22,groc:1840,util:920,reg:"Central"},
+"Chiang Rai":{idx:42,rent:5500,meal:45,trans:22,groc:1800,util:900,reg:"North"},
+"Sing Buri":{idx:42,rent:5400,meal:44,trans:22,groc:1830,util:915,reg:"Central"},
+"Nakhon Ratchasima":{idx:40,rent:5200,meal:42,trans:21,groc:1750,util:870,reg:"Northeast"},
+"Chai Nat":{idx:40,rent:5200,meal:42,trans:21,groc:1760,util:880,reg:"Central"},
+"Phitsanulok":{idx:41,rent:5400,meal:43,trans:21,groc:1780,util:890,reg:"North"},
+"Phetchabun":{idx:40,rent:5200,meal:42,trans:21,groc:1750,util:875,reg:"North"},
+"Khon Kaen":{idx:38,rent:5000,meal:40,trans:20,groc:1700,util:850,reg:"Northeast"},
+"Kamphaeng Phet":{idx:39,rent:5100,meal:41,trans:20,groc:1720,util:860,reg:"North"},
+"Lampang":{idx:39,rent:5100,meal:41,trans:20,groc:1720,util:860,reg:"North"},
+"Tak":{idx:38,rent:5000,meal:40,trans:20,groc:1700,util:850,reg:"North"},
+"Uthai Thani":{idx:38,rent:5000,meal:40,trans:20,groc:1700,util:850,reg:"Central"},
+"Chaiyaphum":{idx:36,rent:4800,meal:38,trans:19,groc:1640,util:820,reg:"Northeast"},
+"Nong Khai":{idx:36,rent:4800,meal:38,trans:19,groc:1650,util:825,reg:"Northeast"},
+"Udon Thani":{idx:36,rent:4800,meal:38,trans:19,groc:1650,util:820,reg:"Northeast"},
+"Sukhothai":{idx:36,rent:4800,meal:38,trans:19,groc:1650,util:825,reg:"North"},
+"Phichit":{idx:37,rent:4900,meal:39,trans:19,groc:1680,util:840,reg:"North"},
+"Mae Hong Son":{idx:37,rent:4900,meal:39,trans:19,groc:1680,util:840,reg:"North"},
+"Phrae":{idx:35,rent:4700,meal:37,trans:18,groc:1620,util:810,reg:"North"},
+"Loei":{idx:35,rent:4700,meal:37,trans:18,groc:1620,util:810,reg:"Northeast"},
+"Buriram":{idx:35,rent:4700,meal:37,trans:18,groc:1610,util:805,reg:"Northeast"},
+"Nan":{idx:36,rent:4800,meal:38,trans:19,groc:1640,util:820,reg:"North"},
+"Sakon Nakhon":{idx:34,rent:4500,meal:36,trans:18,groc:1580,util:790,reg:"Northeast"},
+"Mukdahan":{idx:34,rent:4500,meal:36,trans:18,groc:1580,util:790,reg:"Northeast"},
+"Ubon Ratchathani":{idx:34,rent:4500,meal:36,trans:18,groc:1600,util:800,reg:"Northeast"},
+"Surin":{idx:34,rent:4500,meal:36,trans:18,groc:1580,util:790,reg:"Northeast"},
+"Kalasin":{idx:32,rent:4300,meal:34,trans:17,groc:1520,util:760,reg:"Northeast"},
+"Roi Et":{idx:33,rent:4400,meal:35,trans:17,groc:1550,util:775,reg:"Northeast"},
+"Yasothon":{idx:32,rent:4200,meal:34,trans:17,groc:1520,util:760,reg:"Northeast"},
+"Si Sa Ket":{idx:32,rent:4300,meal:34,trans:17,groc:1520,util:760,reg:"Northeast"},
+"Amnat Charoen":{idx:31,rent:4100,meal:33,trans:16,groc:1490,util:745,reg:"Northeast"},
+"Bueng Kan":{idx:31,rent:4100,meal:33,trans:16,groc:1490,util:745,reg:"Northeast"},
+"Nong Bua Lam Phu":{idx:33,rent:4400,meal:35,trans:17,groc:1550,util:775,reg:"Northeast"},
+"Maha Sarakham":{idx:33,rent:4400,meal:35,trans:17,groc:1550,util:775,reg:"Northeast"},
+"Nakhon Phanom":{idx:33,rent:4400,meal:35,trans:17,groc:1550,util:775,reg:"Northeast"},
+"Songkhla":{idx:56,rent:8000,meal:62,trans:29,groc:2280,util:1140,reg:"South"},
+"Yala":{idx:38,rent:5000,meal:40,trans:20,groc:1700,util:850,reg:"South"},
+"Narathiwat":{idx:36,rent:4800,meal:38,trans:19,groc:1650,util:825,reg:"South"},
+"Pattani":{idx:30,rent:4000,meal:32,trans:16,groc:1450,util:725,reg:"South"},
+"Phayao":{idx:36,rent:4800,meal:38,trans:19,groc:1640,util:820,reg:"North"},
+"Lamphun":{idx:40,rent:5200,meal:42,trans:21,groc:1760,util:880,reg:"North"},
+"Uttaradit":{idx:37,rent:4900,meal:39,trans:19,groc:1660,util:830,reg:"North"},
+"Nakhon Phanom":{idx:33,rent:4400,meal:35,trans:17,groc:1550,util:775,reg:"Northeast"},
+"Phrae":{idx:35,rent:4700,meal:37,trans:18,groc:1620,util:810,reg:"North"},
+};
+
+const CATS=[{k:"rent",l:"Loyer",ic:"🏠"},{k:"meal",l:"Repas",ic:"🍜"},{k:"trans",l:"Transport",ic:"🛺"},{k:"groc",l:"Courses",ic:"🛒"},{k:"util",l:"Charges",ic:"💡"}];
+const CCOLS=["#f59e0b","#60a5fa","#f472b6","#34d399"];
+const RCOLS={Bangkok:"#f59e0b",North:"#34d399",Northeast:"#60a5fa",Central:"#a78bfa",South:"#f472b6"};
+
+// province name -> GeoJSON name mapping
+const NAME_MAP={
+  "Bangkok":"Bangkok","Phuket":"Phuket","Chiang Mai":"Chiang Mai","Chiang Rai":"Chiang Rai",
+  "Nonthaburi":"Nonthaburi","Samut Prakan":"Samut Prakarn","Pathum Thani":"Pathum Thani",
+  "Samut Sakhon":"Samut Sakhon","Krabi":"Krabi","Phang Nga":"Phangnga",
+  "Surat Thani":"Surat Thani","Koh Samui":"Surat Thani",
+  "Nakhon Si Thammarat":"Nakhon Si Thammarat","Songkhla":"Songkhla",
+  "Pattani":"Pattani","Yala":"Yala","Narathiwat":"Narathiwat","Satun":"Satun","Trang":"Trang",
+  "Nakhon Ratchasima":"Nakhon Ratchasima","Khon Kaen":"Khon Kaen","Udon Thani":"Udon Thani",
+  "Ubon Ratchathani":"Ubon Ratchathani","Loei":"Loei","Nong Khai":"Nong Khai",
+  "Sakon Nakhon":"Sakon Nakhon","Nakhon Phanom":"Nakhon Phanom","Mukdahan":"Mukdahan",
+  "Roi Et":"Roi Et","Kalasin":"Kalasin","Maha Sarakham":"Maha Sarakham","Buriram":"Buriram",
+  "Surin":"Surin","Si Sa Ket":"Si Sa Ket","Amnat Charoen":"Amnat Charoen",
+  "Yasothon":"Yasothon","Chaiyaphum":"Chaiyaphum","Bueng Kan":"Bueng Kan",
+  "Nong Bua Lam Phu":"Nong Bua Lam Phu",
+  "Chiang Mai":"Chiang Mai","Mae Hong Son":"Mae Hong Son","Lampang":"Lampang",
+  "Chiang Rai":"Chiang Rai","Phayao":"Phayao","Nan":"Nan","Phrae":"Phrae","Uttaradit":"Uttaradit",
+  "Sukhothai":"Sukhothai","Phitsanulok":"Phitsanulok","Tak":"Tak","Kamphaeng Phet":"Kamphaeng Phet",
+  "Phichit":"Phichit","Phetchabun":"Phetchabun","Nakhon Sawan":"Nakhon Sawan",
+  "Uthai Thani":"Uthai Thani","Chai Nat":"Chainat","Lopburi":"Lop Buri",
+  "Sing Buri":"Sing Buri","Ang Thong":"Ang Thong","Suphan Buri":"Suphan Buri",
+  "Kanchanaburi":"Kanchanaburi","Ratchaburi":"Ratchaburi","Samut Songkhram":"Samut Songkhram",
+  "Nakhon Pathom":"Nakhon Pathom","Phetchaburi":"Phetchaburi",
+  "Prachuap Khiri Khan":"Prachuap Khiri Khan","Chumphon":"Chumphon","Ranong":"Ranong",
+  "Ayutthaya":"Phra Nakhon Si Ayutthaya","Saraburi":"Saraburi","Nakhon Nayok":"Nakhon Nayok",
+  "Prachin Buri":"Prachin Buri","Sa Kaeo":"Sa Kaeo","Chachoengsao":"Chachoengsao",
+  "Chon Buri":"Chon Buri","Rayong":"Rayong","Hua Hin":"Prachuap Khiri Khan",
+  "Lamphun":"Lamphun","Nan":"Nan","Phrae":"Phrae",
+  "Hat Yai":"Songkhla","Pattaya":"Chon Buri","Samut Songkhram":"Samut Songkhram",
+};
+
+function getColor(idx){
+  if(idx>=85)return"#ef4444";if(idx>=72)return"#f97316";if(idx>=60)return"#f59e0b";
+  if(idx>=48)return"#84cc16";if(idx>=36)return"#22c55e";return"#4ade80";
+}
+function fmt(n){return Math.round(n).toLocaleString()+" ฿";}
+function budget(d,t){
+  const m={single:1,couple:1.7,family:2.5}[t];
+  const ml={single:1,couple:2,family:3.5}[t];
+  return Math.round((d.rent+d.groc+d.util+d.trans*30+d.meal*30*ml)*m);
+}
+
+const PROVS=Object.entries(DATA).map(([n,d])=>({name:n,...d})).filter((p,i,a)=>a.findIndex(q=>q.name===p.name)===i).sort((a,b)=>b.idx-a.idx);
+
+let sel=["Bangkok","Chiang Mai"],viewMode="provinces",budType="single",searchQ="",geoData=null;
+let tr={k:1,x:0,y:0},isDrag=false,lastM={x:0,y:0},hov=null,proj=null;
+
+// ── Build D3 projection after GeoJSON loads ──────────────────────────────────
+function buildProjection(geo){
+  const canvas=document.getElementById("mc");
+  const W=canvas.width,H=canvas.height;
+  proj=d3.geoMercator().fitSize([W,H],geo);
+}
+
+function lookupGeoName(provName){
+  // Try to match province name to GeoJSON feature
+  const mapped=NAME_MAP[provName]||provName;
+  return mapped;
+}
+
+function getFeatureData(feature){
+  // Try to find matching province data
+  const fname=feature.properties.NAME_1||feature.properties.name||feature.properties.NAME||"";
+  // Reverse lookup
+  for(const [pname,pdata] of Object.entries(DATA)){
+    const mapped=NAME_MAP[pname]||pname;
+    if(fname===mapped||fname===pname||fname.toLowerCase()===pname.toLowerCase()||fname.toLowerCase()===mapped.toLowerCase()){
+      return {name:pname,...pdata};
+    }
+  }
+  // fallback partial match
+  for(const [pname,pdata] of Object.entries(DATA)){
+    if(fname.toLowerCase().includes(pname.toLowerCase().split(" ")[0])||
+       pname.toLowerCase().includes(fname.toLowerCase().split(" ")[0])){
+      return {name:pname,...pdata};
+    }
+  }
+  return null;
+}
+
+// ── CANVAS DRAW ───────────────────────────────────────────────────────────────
+function drawMap(){
+  const canvas=document.getElementById("mc");
+  const ctx=canvas.getContext("2d");
+  const W=canvas.width,H=canvas.height;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle="#040d1a";
+  ctx.fillRect(0,0,W,H);
+
+  if(!geoData||!proj)return;
+
+  const pathGen=d3.geoPath().projection(proj).context(ctx);
+
+  ctx.save();
+  ctx.translate(tr.x,tr.y);
+  ctx.scale(tr.k,tr.k);
+
+  // Draw each feature
+  geoData.features.forEach(feat=>{
+    const pd=getFeatureData(feat);
+    let fill,stroke,strokeW;
+    const fname=feat.properties.NAME_1||feat.properties.name||"";
+    const isHov=hov===fname;
+    const isSel=pd&&sel.includes(pd.name);
+    const si=pd?sel.indexOf(pd.name):-1;
+
+    if(viewMode==="regions"){
+      fill=pd?RCOLS[pd.reg]||"#334155":"#1e2d4a";
+    } else {
+      fill=pd?getColor(pd.idx):"#1e2d4a";
+    }
+
+    // Fill
+    ctx.beginPath();
+    pathGen(feat);
+    ctx.fillStyle=fill+(isHov?"cc":isSel?"ee":"55");
+    ctx.fill();
+
+    // Border
+    ctx.beginPath();
+    pathGen(feat);
+    if(isSel){
+      ctx.strokeStyle="#ffffff";
+      ctx.lineWidth=2/tr.k;
+    } else if(isHov){
+      ctx.strokeStyle=fill+"ff";
+      ctx.lineWidth=1.5/tr.k;
+    } else {
+      ctx.strokeStyle="rgba(4,13,26,0.9)";
+      ctx.lineWidth=0.8/tr.k;
+    }
+    ctx.stroke();
+
+    // Label for hovered/selected
+    if((isHov||isSel)&&pd){
+      const centroid=d3.geoCentroid(feat);
+      const [cx,cy]=proj(centroid);
+      const fs=Math.max(8,Math.round(11/tr.k));
+      ctx.font=`${isSel?'bold ':''}${fs}px 'Courier New'`;
+      ctx.fillStyle=isSel?"#fff":"rgba(255,255,255,0.9)";
+      ctx.textAlign="center";
+      ctx.textBaseline="middle";
+      const short=pd.name.length>13?pd.name.slice(0,12)+"…":pd.name;
+      // shadow
+      ctx.shadowColor="rgba(0,0,0,0.8)";
+      ctx.shadowBlur=3/tr.k;
+      ctx.fillText(short,cx,cy);
+      ctx.shadowBlur=0;
+      ctx.textBaseline="alphabetic";
+    }
+  });
+
+  ctx.restore();
+}
+
+// ── HIT DETECTION ─────────────────────────────────────────────────────────────
+let pathGenHit=null;
+function getFeatureAt(mx,my){
+  if(!geoData||!proj)return null;
+  const canvas=document.getElementById("mc");
+  const ctx=canvas.getContext("2d");
+  // Inverse transform
+  const lx=(mx-tr.x)/tr.k;
+  const ly=(my-tr.y)/tr.k;
+  const gen=d3.geoPath().projection(proj).context(ctx);
+  for(const feat of geoData.features){
+    ctx.beginPath();
+    gen(feat);
+    if(ctx.isPointInPath(lx,ly)) return feat;
+  }
+  return null;
+}
+
+// ── EVENTS ────────────────────────────────────────────────────────────────────
+function setupCanvas(){
+  const canvas=document.getElementById("mc");
+  const wrap=document.getElementById("map-wrap");
+
+  function resize(){
+    const r=wrap.getBoundingClientRect();
+    canvas.width=r.width;
+    canvas.height=r.height;
+    if(geoData) buildProjection(geoData);
+    drawMap();
+  }
+
+  canvas.addEventListener("mousemove",e=>{
+    const r=canvas.getBoundingClientRect();
+    const cx=e.clientX-r.left,cy=e.clientY-r.top;
+    if(isDrag){
+      tr.x+=e.clientX-lastM.x;tr.y+=e.clientY-lastM.y;
+      lastM={x:e.clientX,y:e.clientY};drawMap();return;
+    }
+    const feat=getFeatureAt(cx,cy);
+    const fname=feat?(feat.properties.NAME_1||feat.properties.name||""):null;
+    if(fname!==hov){hov=fname;drawMap();}
+    if(feat){
+      const pd=getFeatureData(feat);
+      if(pd) showTT(pd,cx,cy);
+      else hideTT();
+    } else hideTT();
+  });
+
+  canvas.addEventListener("mousedown",e=>{isDrag=true;lastM={x:e.clientX,y:e.clientY};});
+  canvas.addEventListener("mouseup",e=>{
+    const dx=Math.abs(e.clientX-lastM.x),dy=Math.abs(e.clientY-lastM.y);
+    isDrag=false;
+    if(dx<4&&dy<4){
+      const r=canvas.getBoundingClientRect();
+      const feat=getFeatureAt(e.clientX-r.left,e.clientY-r.top);
+      if(feat){const pd=getFeatureData(feat);if(pd)toggleSel(pd.name);}
+    }
+  });
+  canvas.addEventListener("mouseleave",()=>{isDrag=false;hov=null;hideTT();drawMap();});
+  canvas.addEventListener("wheel",e=>{
+    e.preventDefault();
+    const f=e.deltaY<0?1.15:0.87;
+    const r=canvas.getBoundingClientRect();
+    const mx=e.clientX-r.left,my=e.clientY-r.top;
+    tr.k=Math.max(0.5,Math.min(12,tr.k*f));
+    tr.x=mx-(mx-tr.x)*f;tr.y=my-(my-tr.y)*f;
+    drawMap();
+  },{passive:false});
+
+  window.addEventListener("resize",resize);
+  resize();
+}
+
+function showTT(p,x,y){
+  const tt=document.getElementById("tooltip");
+  const c=viewMode==="regions"?RCOLS[p.reg]:getColor(p.idx);
+  tt.style.borderColor=c+"40";
+  tt.innerHTML=`<div style="display:flex;align-items:center;gap:5px;margin-bottom:3px">
+    <div style="width:7px;height:7px;border-radius:50%;background:${c};flex-shrink:0"></div>
+    <div class="ttn">${p.name}</div></div>
+    <div class="tts">${p.reg} · IDX ${p.idx}/100</div>
+    <div class="ttg">${CATS.map(c2=>`<div class="tti">${c2.ic} ${fmt(p[c2.k])}</div>`).join("")}</div>
+    <div class="ttb" style="color:${c}">Solo ~${Math.round(budget(p,"single")/1000)}k฿/mois</div>`;
+  const wrap=document.getElementById("map-wrap");
+  const wr=wrap.getBoundingClientRect();
+  let tx=x+12,ty=y-8;
+  if(tx+200>wr.width)tx=x-208;
+  if(ty+160>wr.height)ty=y-168;
+  tt.style.left=tx+"px";tt.style.top=ty+"px";tt.style.display="block";
+}
+function hideTT(){document.getElementById("tooltip").style.display="none";}
+
+// ── LOAD GEOJSON ─────────────────────────────────────────────────────────────
+async function loadGeo(){
+  try{
+    const url="https://cdn.jsdelivr.net/gh/apisit/thailand.json@master/thailand.json";
+    const res=await fetch(url);
+    if(!res.ok) throw new Error("fetch failed");
+    const geo=await res.json();
+    geoData=geo;
+    buildProjection(geo);
+    document.getElementById("map-loading").style.display="none";
+    drawMap();
+  } catch(e){
+    // Fallback: try raw github
+    try{
+      const res2=await fetch("https://raw.githubusercontent.com/apisit/thailand.json/master/thailand.json");
+      const geo=await res2.json();
+      geoData=geo;buildProjection(geo);
+      document.getElementById("map-loading").style.display="none";
+      drawMap();
+    } catch(e2){
+      document.getElementById("map-loading").innerHTML='<span style="color:#ef4444">⚠ Impossible de charger la carte GeoJSON</span>';
+    }
+  }
+}
+
+// ── UI RENDER ─────────────────────────────────────────────────────────────────
+function renderStats(){
+  const t=PROVS.length,avg=Math.round(PROVS.reduce((s,p)=>s+p.idx,0)/t);
+  const cheap=PROVS[PROVS.length-1],exp=PROVS[0];
+  document.getElementById("stats-row").innerHTML=`
+    <div class="sc"><div class="sl">PROVINCES</div><div class="sv">${t}</div></div>
+    <div class="sc"><div class="sl">IDX MOYEN</div><div class="sv">${avg}/100</div></div>
+    <div class="sc"><div class="sl">PLUS CHER</div><div class="sv" style="color:#ef4444;font-size:10px">${exp.name}</div></div>
+    <div class="sc"><div class="sl">MOINS CHER</div><div class="sv" style="color:#4ade80;font-size:10px">${cheap.name}</div></div>`;
+}
+
+function renderList(){
+  searchQ=document.getElementById("search").value;
+  const fil=PROVS.filter(p=>p.name.toLowerCase().includes(searchQ.toLowerCase())||p.reg.toLowerCase().includes(searchQ.toLowerCase()));
+  document.getElementById("prov-list").innerHTML=fil.map(p=>{
+    const si2=sel.indexOf(p.name);const isSel=si2>=0;
+    return `<div class="pi" style="${isSel?`background:${CCOLS[si2]}10;border-color:${CCOLS[si2]}30`:''}" onclick="toggleSel('${p.name.replace(/'/g,"\\'")}')">
+      <div class="pd" style="background:${viewMode==="regions"?RCOLS[p.reg]:getColor(p.idx)}"></div>
+      <div style="flex:1;min-width:0"><div class="pn" style="${isSel?"font-weight:700":""}">${p.name}</div><div class="pr">${p.reg} · ${p.idx}/100</div></div>
+      <div class="pb2">${Math.round(budget(p,"single")/1000)}k฿</div>
+      ${isSel?`<div class="sb" style="background:${CCOLS[si2]}">${si2+1}</div>`:""}
+    </div>`;
+  }).join("");
+}
+
+function renderTags(){
+  document.getElementById("sel-tags").innerHTML=sel.map((n,i)=>`<div class="tag" style="background:${CCOLS[i]}">${i+1} ${n}</div>`).join("");
+  document.getElementById("sel-count").textContent=sel.length;
+}
+
+function renderLegend(){
+  const id=document.getElementById("legend");
+  if(viewMode==="regions"){
+    id.innerHTML=`<div class="lt">RÉGIONS</div>`+Object.entries(RCOLS).map(([r,c])=>`<div class="lr"><div class="lb" style="background:${c}"></div><span class="ll">${r}</span></div>`).join("");
+  } else {
+    id.innerHTML=`<div class="lt">COST INDEX</div>`+[
+      {l:"85–100",c:"#ef4444"},{l:"72–84",c:"#f97316"},{l:"60–71",c:"#f59e0b"},
+      {l:"48–59",c:"#84cc16"},{l:"36–47",c:"#22c55e"},{l:"0–35",c:"#4ade80"}
+    ].map(x=>`<div class="lr"><div class="lb" style="background:${x.c}"></div><span class="ll">${x.l}</span></div>`).join("");
+  }
+}
+
+function renderComparison(){
+  const panel=document.getElementById("comparison-panel");
+  if(!sel.length){
+    panel.innerHTML=`<div class="es"><div class="bi">🗺️</div><div class="mg">Cliquez sur une province</div><div class="ht">sur la carte ou la liste (max 4)</div></div>`;return;
+  }
+  const data=sel.map(n=>({name:n,...DATA[n]})).filter(d=>d.idx);
+  const maxB=Math.max(...data.map(d=>budget(d,budType)));
+  let html=`<div class="bts">${["single","couple","family"].map(t=>`<button class="bt${budType===t?" on":""}" onclick="setBudget('${t}')">${t==="single"?"👤 Solo":t==="couple"?"👫 Couple":"👨‍👩‍👧 Famille"}</button>`).join("")}</div>`;
+  data.forEach((d,i)=>{
+    const b=budget(d,budType);const c=CCOLS[i];
+    html+=`<div class="cc" style="background:${c}08;border-left-color:${c}">
+      <div class="ch"><div><div class="cn">${d.name}</div><div class="crg" style="color:${c}">${d.reg} · ${d.idx}/100</div></div>
+      <div style="text-align:right"><div class="ca" style="color:${c}">${Math.round(b/1000)}k฿</div><div class="cs">/mois</div></div></div>
+      <div class="pb3"><div class="pf" style="background:${c};width:${(b/maxB*100).toFixed(1)}%"></div></div>
+      <div class="cg">${CATS.map(cat=>`<div class="ci"><span class="cl">${cat.ic} ${cat.l}</span><span class="cv">${fmt(d[cat.k])}</span></div>`).join("")}</div>
+    </div>`;
+  });
+  if(data.length>1){
+    html+=`<div class="cmp2"><div class="cmt">PAR CATÉGORIE</div>`;
+    CATS.forEach(cat=>{
+      const vals=data.map(d=>d[cat.k]),maxC=Math.max(...vals);
+      html+=`<div style="margin-bottom:9px"><div style="font-size:8px;color:var(--muted);margin-bottom:3px">${cat.ic} ${cat.l}</div>`;
+      data.forEach((d,i)=>{
+        html+=`<div class="cbr"><span class="cbn">${d.name}</span><div class="cbw"><div class="cbf" style="background:${CCOLS[i]};width:${(d[cat.k]/maxC*100).toFixed(1)}%"></div></div><span class="cbv">${fmt(d[cat.k])}</span></div>`;
+      });
+      html+="</div>";
+    });
+    html+="</div>";
+  }
+  panel.innerHTML=html;
+}
+
+function renderAll(){renderList();renderTags();renderLegend();renderComparison();drawMap();}
+
+function toggleSel(n){
+  if(sel.includes(n))sel=sel.filter(s=>s!==n);
+  else if(sel.length<4)sel=[...sel,n];
+  else sel=[...sel.slice(1),n];
+  renderAll();
+}
+function clearSel(){sel=[];renderAll();}
+function setView(v){
+  viewMode=v;
+  document.getElementById("btn-p").classList.toggle("on",v==="provinces");
+  document.getElementById("btn-r").classList.toggle("on",v==="regions");
+  renderAll();
+}
+function setBudget(t){budType=t;renderComparison();}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+setupCanvas();
+renderStats();
+renderAll();
+loadGeo();
+</script>
