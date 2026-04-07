@@ -2,250 +2,599 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ThaiLifeCost — Thailand Cost of Living Comparator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>ThaiLifeCost — Thailand Cost of Living</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#060c1a;--bg2:#0d1528;--bg3:#111d35;--bd:rgba(255,255,255,0.07);--txt:#e2e8f0;--mut:#4a5568;--fn:'Courier New',monospace}
-*{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;overflow:hidden}
-body{background:var(--bg);color:var(--txt);font-family:var(--fn)}
-.app{display:flex;flex-direction:column;height:100vh;min-height:660px}
+/* ── TOKENS ──────────────────────────────────────────────────────── */
+:root {
+  --c-bg:       #070d1f;
+  --c-surface:  #0e1729;
+  --c-surface2: #131e33;
+  --c-surface3: #192440;
+  --c-border:   rgba(255,255,255,0.07);
+  --c-border2:  rgba(255,255,255,0.12);
+  --c-txt:      #e8edf5;
+  --c-txt2:     #7a8aaa;
+  --c-txt3:     #3d4f6e;
+  --c-amber:    #f59e0b;
+  --c-red:      #ef4444;
+  --c-green:    #22c55e;
+  --c-blue:     #3b82f6;
+  --c-purple:   #8b5cf6;
+  --r-sm:       8px;
+  --r-md:       12px;
+  --r-lg:       16px;
+  --r-xl:       20px;
+  --shadow-sm:  0 1px 3px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.3);
+  --shadow-md:  0 4px 16px rgba(0,0,0,0.5), 0 2px 6px rgba(0,0,0,0.3);
+  --shadow-lg:  0 12px 40px rgba(0,0,0,0.6), 0 4px 12px rgba(0,0,0,0.4);
+  --font:       'Inter', system-ui, sans-serif;
+  --mono:       'JetBrains Mono', 'Courier New', monospace;
+  --ease:       cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
 
-/* HEADER */
-header{background:var(--bg2);border-bottom:1px solid var(--bd);padding:8px 14px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-shrink:0;flex-wrap:wrap}
-.logo{display:flex;align-items:center;gap:9px}
-.logo-icon{width:30px;height:30px;border-radius:7px;background:linear-gradient(135deg,#f59e0b,#ef4444);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
-.logo-name{font-size:15px;font-weight:900;background:linear-gradient(90deg,#f59e0b,#ef4444);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.logo-sub{font-size:9px;color:var(--mut)}
-.hdr-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.tg{display:flex;gap:3px;background:rgba(255,255,255,0.04);border-radius:6px;padding:3px}
-.tb{padding:4px 9px;border-radius:4px;border:none;cursor:pointer;font-size:10px;font-family:var(--fn);transition:all .2s;background:transparent;color:var(--mut)}
-.tb.on{background:rgba(245,158,11,0.2);color:#f59e0b;font-weight:700}
-.live{padding:3px 9px;border-radius:5px;font-size:8px;font-family:var(--fn);color:#4ade80;background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.15)}
+/* ── RESET ───────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { height: 100%; font-size: 16px; }
+body {
+  height: 100%; min-height: 100dvh;
+  background: var(--c-bg);
+  color: var(--c-txt);
+  font-family: var(--font);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.5;
+}
 
-/* LIFESTYLE BAR */
-.lsbar{background:var(--bg2);border-bottom:1px solid var(--bd);padding:7px 14px;display:flex;align-items:center;gap:10px;flex-shrink:0;flex-wrap:wrap}
-.ls-label{font-size:9px;color:var(--mut);letter-spacing:1px;font-weight:700;white-space:nowrap}
-.ls-tg{display:flex;gap:0;background:rgba(255,255,255,0.04);border-radius:8px;padding:3px;border:1px solid var(--bd)}
-.ls-btn{padding:5px 14px;border-radius:5px;border:none;cursor:pointer;font-size:10px;font-family:var(--fn);transition:all .2s;background:transparent;color:var(--mut);white-space:nowrap}
-.ls-btn.thai.on{background:rgba(52,211,153,0.2);color:#34d399;font-weight:700}
-.ls-btn.avg.on{background:rgba(245,158,11,0.2);color:#f59e0b;font-weight:700}
-.ls-btn.hiso.on{background:rgba(239,68,68,0.2);color:#ef4444;font-weight:700}
-.ls-desc{font-size:9px;color:var(--mut);font-family:var(--fn)}
+/* ── SCROLLBARS ──────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--c-surface3); border-radius: 2px; }
 
-/* STATS */
-.sr{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:7px 10px 0;flex-shrink:0}
-.sc{background:var(--bg2);border:1px solid var(--bd);border-radius:8px;padding:6px 10px}
-.sl{font-size:8px;color:var(--mut);letter-spacing:1px;font-weight:700}
-.sv{font-size:12px;font-family:var(--fn);color:var(--txt);margin-top:1px}
+/* ── LAYOUT ──────────────────────────────────────────────────────── */
+.app {
+  display: flex; flex-direction: column;
+  height: 100dvh; min-height: 100dvh;
+  overflow: hidden;
+}
 
-/* MAIN GRID */
-.main{display:grid;grid-template-columns:210px 1fr 268px;flex:1;gap:8px;padding:7px 10px;min-height:0;overflow:hidden}
-.panel{background:var(--bg2);border:1px solid var(--bd);border-radius:11px;display:flex;flex-direction:column;overflow:hidden}
-.ph{padding:9px 11px 0;font-size:9px;color:var(--mut);letter-spacing:1.5px;font-weight:700;flex-shrink:0;display:flex;justify-content:space-between;align-items:center;padding-right:11px}
-.pb{flex:1;overflow-y:auto;padding:7px 9px 9px;display:flex;flex-direction:column}
-.pb::-webkit-scrollbar{width:2px}
-.pb::-webkit-scrollbar-thumb{background:#1e2d4a;border-radius:2px}
+/* ── HEADER ──────────────────────────────────────────────────────── */
+.header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 20px; gap: 12px; flex-shrink: 0; flex-wrap: wrap;
+  background: var(--c-surface);
+  border-bottom: 1px solid var(--c-border);
+  backdrop-filter: blur(12px);
+  z-index: 50;
+}
+.logo { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.logo-badge {
+  width: 34px; height: 34px; border-radius: var(--r-sm);
+  background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px; box-shadow: 0 4px 12px rgba(245,158,11,0.3);
+  flex-shrink: 0;
+}
+.logo-text { display: flex; flex-direction: column; gap: 0; }
+.logo-title {
+  font-size: 15px; font-weight: 800; letter-spacing: -0.3px;
+  background: linear-gradient(90deg, #f59e0b, #ef4444);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  line-height: 1.1;
+}
+.logo-sub { font-size: 10px; color: var(--c-txt2); font-weight: 400; }
 
-/* PROVINCE LIST */
-.si{position:relative;margin-bottom:7px;flex-shrink:0}
-.si input{width:100%;padding:5px 9px 5px 26px;background:rgba(255,255,255,0.04);border:1px solid var(--bd);border-radius:6px;color:var(--txt);font-size:10px;font-family:var(--fn);outline:none}
-.si input::placeholder{color:var(--mut)}
-.si-ic{position:absolute;left:8px;top:6px;font-size:11px;color:var(--mut)}
-.pi{display:flex;align-items:center;gap:6px;padding:4px 6px;border-radius:6px;cursor:pointer;border:1px solid transparent;transition:all .15s;margin-bottom:2px}
-.pi:hover{background:rgba(255,255,255,0.03)}
-.pd{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-.pn{font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.pr{font-size:8px;color:var(--mut)}
-.pbudget{font-size:9px;color:var(--mut);flex-shrink:0}
-.sbadge{width:13px;height:13px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:#000;flex-shrink:0}
-.lim{font-size:7px;color:#f59e0b;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.2);border-radius:3px;padding:1px 4px;margin-left:3px}
+/* ── VIEW TOGGLE (pill) ──────────────────────────────────────────── */
+.pill-group {
+  display: flex; gap: 2px; padding: 3px;
+  background: var(--c-surface2); border-radius: var(--r-sm);
+  border: 1px solid var(--c-border);
+}
+.pill-btn {
+  padding: 5px 12px; border-radius: 6px; border: none; cursor: pointer;
+  font-size: 11px; font-weight: 500; font-family: var(--font);
+  transition: all 0.2s var(--ease);
+  background: transparent; color: var(--c-txt2);
+}
+.pill-btn:hover:not(.active) { color: var(--c-txt); background: rgba(255,255,255,0.04); }
+.pill-btn.active { background: var(--c-surface3); color: var(--c-txt); box-shadow: var(--shadow-sm); }
 
-/* MAP */
-.map-wrap{border-radius:11px;overflow:hidden;position:relative;background:#040d1a}
-#mc{display:block;width:100%;height:100%;cursor:crosshair}
-.ot{position:absolute;top:9px;left:9px;display:flex;flex-wrap:wrap;gap:3px;z-index:10;max-width:calc(100% - 20px)}
-.tag{padding:2px 8px;border-radius:20px;font-size:8px;font-family:var(--fn);font-weight:700;color:#000}
-.leg{position:absolute;bottom:9px;right:9px;background:rgba(4,13,26,0.94);border:1px solid var(--bd);border-radius:9px;padding:9px 11px;z-index:10}
-.lt{font-size:7px;color:var(--mut);letter-spacing:1px;margin-bottom:6px;font-weight:700}
-.lr{display:flex;align-items:center;gap:5px;margin-bottom:3px}
-.lb{width:20px;height:4px;border-radius:1px;flex-shrink:0}
-.ll{font-size:8px;color:var(--mut);font-family:var(--fn)}
-.mhint{position:absolute;bottom:9px;left:9px;font-size:8px;color:rgba(255,255,255,0.15);font-family:var(--fn)}
-.lspin{display:flex;align-items:center;justify-content:center;height:100%;color:var(--mut);font-size:11px;font-family:var(--fn);gap:8px}
+.live-dot {
+  display: flex; align-items: center; gap: 5px;
+  padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: 500;
+  color: #4ade80; background: rgba(74,222,128,0.08); border: 1px solid rgba(74,222,128,0.2);
+}
+.live-dot::before {
+  content: ''; width: 6px; height: 6px; border-radius: 50%;
+  background: #4ade80; animation: pulse 2s infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
 
-/* TOOLTIP */
-.tt{position:absolute;z-index:30;pointer-events:none;background:rgba(4,13,26,0.98);border-radius:9px;padding:9px 12px;width:200px;border:1px solid rgba(255,255,255,0.07)}
-.ttn{font-size:12px;font-weight:700;color:var(--txt);font-family:var(--fn)}
-.tts{font-size:9px;color:var(--mut);font-family:var(--fn);margin:2px 0 7px}
-.ttg{display:grid;grid-template-columns:1fr 1fr;gap:2px}
-.tti{font-size:9px;color:#94a3b8;font-family:var(--fn)}
-.ttb{margin-top:7px;padding-top:7px;border-top:1px solid rgba(255,255,255,0.05);font-size:9px;font-weight:700;font-family:var(--fn)}
+/* ── LIFESTYLE BAR ───────────────────────────────────────────────── */
+.ls-bar {
+  display: flex; align-items: center; gap: 12px; padding: 10px 20px;
+  background: var(--c-surface); border-bottom: 1px solid var(--c-border);
+  flex-shrink: 0; flex-wrap: wrap;
+}
+.ls-label { font-size: 10px; font-weight: 600; color: var(--c-txt2); letter-spacing: 0.8px; white-space: nowrap; }
+.ls-group {
+  display: flex; gap: 4px; padding: 3px;
+  background: var(--c-bg); border-radius: var(--r-sm);
+  border: 1px solid var(--c-border);
+}
+.ls-btn {
+  display: flex; align-items: center; gap: 6px;
+  padding: 6px 14px; border-radius: 6px; border: none; cursor: pointer;
+  font-size: 11px; font-weight: 500; font-family: var(--font);
+  transition: all 0.2s var(--ease); white-space: nowrap;
+  background: transparent; color: var(--c-txt2);
+}
+.ls-btn:hover:not(.active) { background: rgba(255,255,255,0.04); color: var(--c-txt); }
+.ls-btn.thai.active  { background: rgba(52,211,153,0.15); color: #34d399; border: 1px solid rgba(52,211,153,0.25); }
+.ls-btn.avg.active   { background: rgba(245,158,11,0.15); color: #f59e0b; border: 1px solid rgba(245,158,11,0.25); }
+.ls-btn.hiso.active  { background: rgba(239,68,68,0.15);  color: #ef4444; border: 1px solid rgba(239,68,68,0.25); }
+.ls-desc { font-size: 10px; color: var(--c-txt2); flex: 1; min-width: 0; }
 
-/* COMPARISON */
-.bts{display:flex;gap:3px;margin-bottom:0;flex-shrink:0}
-.bt{padding:3px 8px;border-radius:20px;border:none;cursor:pointer;font-size:9px;font-family:var(--fn);transition:all .2s;background:rgba(255,255,255,0.04);color:var(--mut)}
-.bt.on{background:rgba(245,158,11,0.2);color:#f59e0b;font-weight:700}
-.cc{border-radius:8px;padding:11px;margin-bottom:7px;border-left:3px solid}
-.ch{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:7px}
-.cn{font-size:12px;font-weight:700;font-family:var(--fn);color:var(--txt)}
-.crg{font-size:9px;font-family:var(--fn)}
-.ca{font-size:16px;font-weight:700;font-family:var(--fn)}
-.cs{font-size:8px;color:var(--mut);font-family:var(--fn)}
-.pb3{height:3px;background:rgba(255,255,255,0.05);border-radius:2px;margin-bottom:9px;overflow:hidden}
-.pf{height:100%;border-radius:2px;transition:width .4s ease}
-.cg{display:grid;grid-template-columns:1fr 1fr;gap:3px}
-.ci{font-size:9px;display:flex;flex-direction:column;gap:1px}
-.cl{color:var(--mut);flex-shrink:0}
-.cv{color:#94a3b8;font-family:var(--fn)}
-.cvsub{font-size:7px;color:#334155;font-family:var(--fn)}
-.es{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--mut);text-align:center;gap:5px}
-.rb{background:none;border:none;color:var(--mut);cursor:pointer;font-size:9px;font-family:var(--fn);padding:0}
-.cmp2{background:rgba(255,255,255,0.02);border:1px solid var(--bd);border-radius:8px;padding:11px;margin-top:3px}
-.cmt{font-size:8px;color:var(--mut);letter-spacing:1px;font-weight:700;margin-bottom:9px}
-.cbr{display:flex;align-items:center;gap:5px;margin-bottom:2px}
-.cbn{font-size:8px;color:var(--mut);width:62px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex-shrink:0}
-.cbw{flex:1;height:4px;background:rgba(255,255,255,0.04);border-radius:2px;overflow:hidden}
-.cbf{height:100%;border-radius:2px;transition:width .4s ease}
-.cbv{font-size:8px;color:var(--mut);font-family:var(--fn);width:46px;text-align:right;flex-shrink:0}
+/* ── STATS ROW ───────────────────────────────────────────────────── */
+.stats-row {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 8px; padding: 10px 16px; flex-shrink: 0;
+}
+.stat-card {
+  background: var(--c-surface); border: 1px solid var(--c-border);
+  border-radius: var(--r-md); padding: 10px 14px;
+  transition: border-color 0.2s;
+}
+.stat-card:hover { border-color: var(--c-border2); }
+.stat-label { font-size: 9px; font-weight: 600; color: var(--c-txt2); letter-spacing: 0.8px; margin-bottom: 3px; }
+.stat-value { font-size: 13px; font-weight: 700; font-family: var(--mono); color: var(--c-txt); }
 
-/* WELCOME MODAL */
-.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.82);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px}
-.modal{background:#0d1528;border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:28px 26px;max-width:480px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.9)}
-.modal-title{font-size:19px;font-weight:900;background:linear-gradient(90deg,#f59e0b,#ef4444);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:3px}
-.modal-sub{font-size:10px;color:var(--mut);font-family:var(--fn);margin-bottom:14px}
-.modal-body{font-size:12px;color:#94a3b8;line-height:1.7;font-family:var(--fn);margin-bottom:14px}
-.modal-body ul{margin:7px 0 7px 8px}
-.modal-body li{margin-bottom:3px;list-style:none;padding-left:12px;position:relative}
-.modal-body li::before{content:"•";position:absolute;left:0;color:#f59e0b}
-.modal-modes{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px}
-.modal-mode{border-radius:8px;padding:10px 8px;text-align:center;border:1px solid}
-.mm-icon{font-size:18px;margin-bottom:4px}
-.mm-name{font-size:10px;font-weight:700;font-family:var(--fn)}
-.mm-desc{font-size:8px;color:var(--mut);font-family:var(--fn);margin-top:3px;line-height:1.4}
-.modal-footer{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.modal-check{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--mut);cursor:pointer;font-family:var(--fn)}
-.modal-check input{cursor:pointer;accent-color:#f59e0b}
-.modal-btn{padding:9px 20px;border-radius:8px;border:none;cursor:pointer;font-size:11px;font-family:var(--fn);font-weight:700;background:linear-gradient(135deg,#f59e0b,#ef4444);color:#000;transition:opacity .2s}
-.modal-btn:hover{opacity:.85}
+/* ── MAIN GRID ───────────────────────────────────────────────────── */
+.main-grid {
+  display: grid;
+  grid-template-columns: 220px 1fr 290px;
+  gap: 10px; padding: 0 16px 12px;
+  flex: 1; min-height: 0; overflow: hidden;
+}
+
+/* ── PANEL ───────────────────────────────────────────────────────── */
+.panel {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-lg);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+.panel-header {
+  padding: 12px 14px 0; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.panel-title {
+  font-size: 10px; font-weight: 700; color: var(--c-txt2);
+  letter-spacing: 1px; text-transform: uppercase;
+}
+.panel-body { flex: 1; overflow-y: auto; padding: 10px 12px 12px; display: flex; flex-direction: column; }
+
+/* ── SEARCH ──────────────────────────────────────────────────────── */
+.search-wrap { position: relative; margin-bottom: 8px; flex-shrink: 0; }
+.search-wrap input {
+  width: 100%; padding: 7px 10px 7px 30px;
+  background: var(--c-surface2); border: 1px solid var(--c-border);
+  border-radius: var(--r-sm); color: var(--c-txt); font-size: 11px;
+  font-family: var(--font); outline: none; transition: border-color 0.2s;
+}
+.search-wrap input:focus { border-color: var(--c-border2); }
+.search-wrap input::placeholder { color: var(--c-txt3); }
+.search-icon { position: absolute; left: 9px; top: 50%; transform: translateY(-50%); font-size: 13px; color: var(--c-txt2); pointer-events: none; }
+
+/* ── PROVINCE ITEM ───────────────────────────────────────────────── */
+.prov-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 8px; border-radius: var(--r-sm); cursor: pointer;
+  border: 1px solid transparent; transition: all 0.15s var(--ease);
+  margin-bottom: 2px;
+}
+.prov-item:hover { background: var(--c-surface2); }
+.prov-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; transition: transform 0.2s; }
+.prov-item:hover .prov-dot { transform: scale(1.3); }
+.prov-name { font-size: 11px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+.prov-region { font-size: 9px; color: var(--c-txt2); }
+.prov-budget { font-size: 10px; color: var(--c-txt2); font-family: var(--mono); flex-shrink: 0; }
+.sel-badge {
+  width: 15px; height: 15px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 8px; font-weight: 700; color: #000; flex-shrink: 0;
+}
+.limited-tag {
+  font-size: 7px; font-weight: 600; color: #f59e0b;
+  background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.2);
+  border-radius: 3px; padding: 1px 4px; flex-shrink: 0;
+}
+
+/* ── MAP WRAP ────────────────────────────────────────────────────── */
+.map-panel {
+  border-radius: var(--r-lg); overflow: hidden; position: relative;
+  background: #040d1a; border: 1px solid var(--c-border);
+  box-shadow: var(--shadow-md);
+}
+#map-canvas { display: block; width: 100%; height: 100%; cursor: crosshair; }
+.map-tags { position: absolute; top: 10px; left: 10px; display: flex; flex-wrap: wrap; gap: 4px; z-index: 10; max-width: calc(100% - 20px); }
+.map-tag {
+  padding: 3px 9px; border-radius: 20px; font-size: 9px;
+  font-family: var(--mono); font-weight: 700; color: #000;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+.map-legend {
+  position: absolute; bottom: 10px; right: 10px;
+  background: rgba(4,13,26,0.92); border: 1px solid var(--c-border);
+  border-radius: var(--r-md); padding: 10px 12px; z-index: 10;
+  backdrop-filter: blur(8px);
+}
+.leg-title { font-size: 8px; font-weight: 700; color: var(--c-txt2); letter-spacing: 1px; margin-bottom: 7px; text-transform: uppercase; }
+.leg-row { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+.leg-bar { width: 22px; height: 5px; border-radius: 2px; flex-shrink: 0; }
+.leg-label { font-size: 8px; color: var(--c-txt2); font-family: var(--mono); }
+.map-hint { position: absolute; bottom: 10px; left: 10px; font-size: 9px; color: rgba(255,255,255,0.18); font-family: var(--mono); }
+.map-loading {
+  position: absolute; inset: 0; background: #040d1a; z-index: 20;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  font-size: 12px; color: var(--c-txt2); font-family: var(--mono);
+}
+.spin { animation: spin 1s linear infinite; display: inline-block; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── TOOLTIP ─────────────────────────────────────────────────────── */
+.map-tooltip {
+  position: absolute; z-index: 30; pointer-events: none;
+  background: var(--c-surface); border: 1px solid var(--c-border2);
+  border-radius: var(--r-md); padding: 12px 14px; width: 210px;
+  box-shadow: var(--shadow-lg); backdrop-filter: blur(12px);
+}
+.tt-name { font-size: 13px; font-weight: 700; color: var(--c-txt); line-height: 1.2; }
+.tt-meta { font-size: 10px; color: var(--c-txt2); margin: 3px 0 10px; font-family: var(--mono); }
+.tt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+.tt-item { font-size: 10px; color: #94a3b8; font-family: var(--mono); }
+.tt-total { margin-top: 9px; padding-top: 9px; border-top: 1px solid var(--c-border); font-size: 10px; font-weight: 700; font-family: var(--mono); }
+
+/* ── COMPARISON PANEL ────────────────────────────────────────────── */
+.hh-tabs { display: flex; gap: 3px; padding: 3px; background: var(--c-bg); border-radius: var(--r-sm); border: 1px solid var(--c-border); }
+.hh-btn {
+  flex: 1; padding: 5px 4px; border-radius: 5px; border: none; cursor: pointer;
+  font-size: 10px; font-weight: 500; font-family: var(--font);
+  transition: all 0.2s var(--ease); background: transparent; color: var(--c-txt2);
+  white-space: nowrap; text-align: center;
+}
+.hh-btn:hover:not(.active) { background: rgba(255,255,255,0.04); color: var(--c-txt); }
+.hh-btn.active { background: var(--c-surface3); color: var(--c-txt); box-shadow: var(--shadow-sm); }
+
+.comp-card {
+  border-radius: var(--r-md); padding: 13px; margin-bottom: 8px;
+  border-left: 3px solid; border-top: 1px solid; border-right: 1px solid; border-bottom: 1px solid;
+  position: relative; overflow: hidden;
+  transition: transform 0.15s var(--ease);
+}
+.comp-card:hover { transform: translateY(-1px); }
+.comp-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+.comp-name { font-size: 13px; font-weight: 700; color: var(--c-txt); line-height: 1.2; }
+.comp-region { font-size: 9px; font-weight: 500; margin-top: 1px; font-family: var(--mono); }
+.comp-total { font-size: 18px; font-weight: 800; font-family: var(--mono); line-height: 1; }
+.comp-sub { font-size: 9px; color: var(--c-txt2); margin-top: 2px; }
+
+.prog-bar { height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; margin-bottom: 11px; overflow: hidden; }
+.prog-fill { height: 100%; border-radius: 2px; transition: width 0.5s var(--ease); }
+
+.cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.cat-item { display: flex; flex-direction: column; gap: 1px; }
+.cat-label { font-size: 9px; color: var(--c-txt2); font-weight: 500; }
+.cat-value { font-size: 11px; font-weight: 600; color: var(--c-txt); font-family: var(--mono); }
+.cat-sub { font-size: 8px; color: var(--c-txt3); font-family: var(--mono); }
+
+/* Cat bar (mini inline bar for category) */
+.cat-bar-wrap { height: 2px; background: rgba(255,255,255,0.05); border-radius: 1px; margin-top: 3px; overflow: hidden; }
+.cat-bar-fill { height: 100%; border-radius: 1px; transition: width 0.4s var(--ease); }
+
+.comp-footer {
+  margin-top: 9px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.05);
+  font-size: 8px; color: var(--c-txt3); font-family: var(--mono); line-height: 1.4;
+}
+
+.breakdown-panel {
+  background: rgba(255,255,255,0.015); border: 1px solid var(--c-border);
+  border-radius: var(--r-md); padding: 12px; margin-top: 6px;
+}
+.breakdown-title { font-size: 9px; font-weight: 700; color: var(--c-txt2); letter-spacing: 1px; margin-bottom: 10px; text-transform: uppercase; }
+.bk-cat { margin-bottom: 10px; }
+.bk-cat-label { font-size: 9px; color: var(--c-txt2); margin-bottom: 4px; }
+.bk-row { display: flex; align-items: center; gap: 6px; margin-bottom: 3px; }
+.bk-name { font-size: 8px; color: var(--c-txt2); font-family: var(--mono); width: 65px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex-shrink: 0; }
+.bk-bar-wrap { flex: 1; height: 5px; background: rgba(255,255,255,0.04); border-radius: 2px; overflow: hidden; }
+.bk-bar-fill { height: 100%; border-radius: 2px; transition: width 0.4s var(--ease); }
+.bk-val { font-size: 8px; color: var(--c-txt2); font-family: var(--mono); width: 48px; text-align: right; flex-shrink: 0; }
+
+.empty-state {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  height: 100%; gap: 8px; text-align: center;
+}
+.empty-icon { font-size: 32px; opacity: 0.4; }
+.empty-title { font-size: 12px; color: var(--c-txt2); font-weight: 500; }
+.empty-sub { font-size: 10px; color: var(--c-txt3); }
+
+.clear-btn { background: none; border: none; cursor: pointer; color: var(--c-txt2); font-size: 10px; font-family: var(--font); padding: 2px 6px; border-radius: 4px; transition: all 0.15s; }
+.clear-btn:hover { color: var(--c-txt); background: rgba(255,255,255,0.06); }
+
+/* ── WELCOME MODAL ───────────────────────────────────────────────── */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.80);
+  z-index: 200; display: flex; align-items: center; justify-content: center;
+  padding: 20px; backdrop-filter: blur(6px);
+  animation: fadeIn 0.25s ease;
+}
+@keyframes fadeIn { from{opacity:0} to{opacity:1} }
+.modal-box {
+  background: var(--c-surface); border: 1px solid var(--c-border2);
+  border-radius: var(--r-xl); padding: 28px 26px; max-width: 480px; width: 100%;
+  box-shadow: var(--shadow-lg);
+  animation: slideUp 0.3s var(--ease);
+}
+@keyframes slideUp { from{transform:translateY(16px);opacity:0} to{transform:translateY(0);opacity:1} }
+.modal-title {
+  font-size: 20px; font-weight: 800; letter-spacing: -0.4px;
+  background: linear-gradient(90deg, #f59e0b, #ef4444);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  margin-bottom: 4px;
+}
+.modal-subtitle { font-size: 11px; color: var(--c-txt2); font-family: var(--mono); margin-bottom: 16px; }
+.modal-body { font-size: 12px; color: #94a3b8; line-height: 1.7; margin-bottom: 16px; }
+.modal-body ul { margin: 8px 0; padding-left: 14px; }
+.modal-body li { margin-bottom: 4px; list-style: none; padding-left: 10px; position: relative; }
+.modal-body li::before { content: "•"; position: absolute; left: 0; color: var(--c-amber); }
+.modal-modes { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 20px; }
+.mode-card {
+  border-radius: var(--r-md); padding: 12px 10px; text-align: center;
+  border: 1px solid; transition: transform 0.2s;
+}
+.mode-card:hover { transform: translateY(-2px); }
+.mode-icon { font-size: 20px; margin-bottom: 5px; }
+.mode-name { font-size: 11px; font-weight: 700; margin-bottom: 3px; font-family: var(--mono); }
+.mode-desc { font-size: 9px; color: var(--c-txt2); line-height: 1.4; }
+.modal-footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.modal-check { display: flex; align-items: center; gap: 7px; font-size: 11px; color: var(--c-txt2); cursor: pointer; }
+.modal-check input { cursor: pointer; accent-color: var(--c-amber); width: 14px; height: 14px; }
+.modal-cta {
+  padding: 10px 22px; border-radius: var(--r-sm); border: none; cursor: pointer;
+  font-size: 12px; font-weight: 700; font-family: var(--font);
+  background: linear-gradient(135deg, #f59e0b, #ef4444); color: #000;
+  transition: opacity 0.2s, transform 0.15s; box-shadow: 0 4px 14px rgba(245,158,11,0.3);
+}
+.modal-cta:hover { opacity: 0.9; transform: translateY(-1px); }
+
+/* ── MOBILE ───────────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .main-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 50vh auto;
+    overflow-y: auto; overflow-x: hidden;
+    padding: 0 10px 16px;
+    gap: 8px;
+  }
+  .panel-left  { order: 3; max-height: 260px; }
+  .map-panel   { order: 1; min-height: 50vh; }
+  .panel-right { order: 2; max-height: auto; }
+  .stats-row { grid-template-columns: repeat(2,1fr); padding: 8px 10px; }
+  .header { padding: 10px 14px; }
+  .ls-bar { padding: 8px 14px; }
+  .ls-desc { display: none; }
+  .logo-sub { display: none; }
+  .live-dot span { display: none; }
+  .modal-modes { grid-template-columns: 1fr; }
+  .modal-box { padding: 20px 18px; }
+}
+@media (max-width: 480px) {
+  .stats-row { grid-template-columns: repeat(2,1fr); gap: 6px; }
+  .ls-btn { padding: 5px 10px; font-size: 10px; }
+  .pill-btn { padding: 4px 8px; font-size: 10px; }
+  .header { gap: 8px; }
+  .live-dot { padding: 4px 8px; }
+}
 </style>
 </head>
 <body>
 
-<!-- ── WELCOME MODAL ─────────────────────────────────────────── -->
-<div class="modal-bg" id="modal" style="display:none">
-  <div class="modal">
-    <div class="modal-title">Welcome to ThaiLifeCost!</div>
-    <div class="modal-sub">Thailand cost-of-living comparator · Data based on Numbeo + local contributions</div>
+<!-- WELCOME MODAL -->
+<div class="modal-overlay" id="modal" style="display:none" onclick="handleOverlayClick(event)">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-title">Welcome to ThaiLifeCost</div>
+    <div class="modal-subtitle">Thailand cost-of-living comparator · Data based on Numbeo + local contributions</div>
     <div class="modal-body">
-      This tool shows <strong style="color:#e2e8f0">average monthly estimates</strong> across Thailand's provinces. Real costs vary a lot:
+      This tool provides <strong style="color:var(--c-txt)">average monthly estimates</strong> across Thailand's provinces. Real costs vary significantly based on:
       <ul>
-        <li>Neighbourhood &amp; apartment quality</li>
+        <li>Neighbourhood & apartment quality</li>
         <li>Where you eat — street food vs restaurants</li>
-        <li>Transport — scooter vs Grab vs BTS/MRT</li>
-        <li>Your personal spending habits</li>
+        <li>Transport habits — scooter vs Grab vs BTS/MRT</li>
+        <li>Your personal lifestyle choices</li>
       </ul>
-      Use the <strong style="color:#f59e0b">3 Lifestyle Modes</strong> below to model your scenario:
+      Use the <strong style="color:var(--c-amber)">3 Lifestyle Modes</strong> to model your actual scenario:
     </div>
     <div class="modal-modes">
-      <div class="modal-mode" style="background:rgba(52,211,153,0.07);border-color:rgba(52,211,153,0.25)">
-        <div class="mm-icon">🛵</div>
-        <div class="mm-name" style="color:#34d399">Thai Style</div>
-        <div class="mm-desc">Street food, local market, scooter rental.<br>−25 to −40%</div>
+      <div class="mode-card" style="background:rgba(52,211,153,.07);border-color:rgba(52,211,153,.25)">
+        <div class="mode-icon">🛵</div>
+        <div class="mode-name" style="color:#34d399">Thai Style</div>
+        <div class="mode-desc">Street food, local market, scooter. −25 to −40%</div>
       </div>
-      <div class="modal-mode" style="background:rgba(245,158,11,0.07);border-color:rgba(245,158,11,0.25)">
-        <div class="mm-icon">🌏</div>
-        <div class="mm-name" style="color:#f59e0b">Farang Avg</div>
-        <div class="mm-desc">Numbeo averages. Mixed local &amp; expat habits. Default mode.</div>
+      <div class="mode-card" style="background:rgba(245,158,11,.07);border-color:rgba(245,158,11,.25)">
+        <div class="mode-icon">🌏</div>
+        <div class="mode-name" style="color:#f59e0b">Farang Avg</div>
+        <div class="mode-desc">Numbeo averages. Default mode.</div>
       </div>
-      <div class="modal-mode" style="background:rgba(239,68,68,0.07);border-color:rgba(239,68,68,0.25)">
-        <div class="mm-icon">🥂</div>
-        <div class="mm-name" style="color:#ef4444">Hi-So</div>
-        <div class="mm-desc">Luxury condo, restaurants, Grab/taxi.<br>+50 to +100%</div>
+      <div class="mode-card" style="background:rgba(239,68,68,.07);border-color:rgba(239,68,68,.25)">
+        <div class="mode-icon">🥂</div>
+        <div class="mode-name" style="color:#ef4444">Hi-So</div>
+        <div class="mode-desc">Luxury condo, restaurants, Grab/taxi. +50–100%</div>
       </div>
     </div>
     <div class="modal-footer">
       <label class="modal-check"><input type="checkbox" id="dont-show"> Don't show again</label>
-      <button class="modal-btn" onclick="closeModal()">Got it, thanks!</button>
+      <button class="modal-cta" onclick="closeModal()">Got it, thanks!</button>
     </div>
   </div>
 </div>
 
-<!-- ── APP ──────────────────────────────────────────────────── -->
+<!-- APP -->
 <div class="app">
-<header>
-  <div class="logo">
-    <div class="logo-icon">🇹🇭</div>
-    <div>
-      <div class="logo-name">ThaiLifeCost</div>
-      <div class="logo-sub">Interactive cost-of-living map · 77 provinces</div>
-    </div>
-  </div>
-  <div class="hdr-right">
-    <div class="tg">
-      <button class="tb on" id="btn-p" onclick="setView('provinces')">Cost Index</button>
-      <button class="tb" id="btn-r" onclick="setView('regions')">5 Regions</button>
-    </div>
-    <div class="live">● LIVE</div>
-  </div>
-</header>
 
-<!-- LIFESTYLE MODE BAR -->
-<div class="lsbar">
-  <span class="ls-label">LIFESTYLE MODE:</span>
-  <div class="ls-tg">
-    <button class="ls-btn thai" id="ls-thai" onclick="setLifestyle('thai')">🛵 Thai Style</button>
-    <button class="ls-btn avg on" id="ls-avg"  onclick="setLifestyle('avg')">🌏 Farang Avg</button>
-    <button class="ls-btn hiso" id="ls-hiso" onclick="setLifestyle('hiso')">🥂 Hi-So</button>
-  </div>
-  <span class="ls-desc" id="ls-desc">Numbeo averages — mixed local &amp; expat lifestyle. Standard reference mode.</span>
-</div>
-
-<div class="sr" id="stats-row"></div>
-
-<div class="main">
-  <!-- LEFT -->
-  <div class="panel">
-    <div class="ph">PROVINCES <span id="prov-count" style="color:var(--txt)">0</span></div>
-    <div class="pb">
-      <div class="si"><span class="si-ic">⌕</span><input id="search" placeholder="Search province or region…" oninput="renderList()"></div>
-      <div id="prov-list" style="flex:1;overflow-y:auto"></div>
+  <!-- HEADER -->
+  <header class="header">
+    <div class="logo">
+      <div class="logo-badge">🇹🇭</div>
+      <div class="logo-text">
+        <div class="logo-title">ThaiLifeCost</div>
+        <div class="logo-sub">Interactive cost-of-living · 77 provinces</div>
+      </div>
     </div>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <div class="pill-group">
+        <button class="pill-btn active" id="btn-cost" onclick="setView('provinces')">Cost Index</button>
+        <button class="pill-btn" id="btn-region" onclick="setView('regions')">5 Regions</button>
+      </div>
+      <div class="live-dot"><span>Live data</span></div>
+    </div>
+  </header>
+
+  <!-- LIFESTYLE BAR -->
+  <div class="ls-bar">
+    <span class="ls-label">LIFESTYLE</span>
+    <div class="ls-group">
+      <button class="ls-btn thai" id="ls-thai" onclick="setLS('thai')">🛵 Thai Style</button>
+      <button class="ls-btn avg active" id="ls-avg"  onclick="setLS('avg')">🌏 Farang Avg</button>
+      <button class="ls-btn hiso" id="ls-hiso" onclick="setLS('hiso')">🥂 Hi-So</button>
+    </div>
+    <span class="ls-desc" id="ls-desc">Numbeo averages — mixed local &amp; expat lifestyle.</span>
   </div>
 
-  <!-- CENTER: Map -->
-  <div class="map-wrap" id="map-wrap">
-    <div class="ot" id="sel-tags"></div>
-    <canvas id="mc"></canvas>
-    <div class="leg" id="legend"></div>
-    <div class="mhint">Scroll to zoom · Drag to pan · Click to select</div>
-    <div class="tt" id="tooltip" style="display:none"></div>
-    <div id="map-loading" class="lspin" style="position:absolute;inset:0;background:#040d1a;z-index:20">
-      <span>⟳</span><span>Loading Thailand map…</span>
-    </div>
-  </div>
+  <!-- STATS -->
+  <div class="stats-row" id="stats-row"></div>
 
-  <!-- RIGHT: Comparison -->
-  <div class="panel">
-    <div class="ph">
-      <span>COMPARISON (<span id="sel-count">0</span>/4)</span>
-      <button class="rb" onclick="clearSel()">✕ Clear</button>
+  <!-- MAIN -->
+  <div class="main-grid">
+
+    <!-- LEFT: Province list -->
+    <div class="panel panel-left">
+      <div class="panel-header">
+        <span class="panel-title">Provinces <span id="pcount" style="color:var(--c-txt);font-family:var(--mono)">0</span></span>
+      </div>
+      <div class="panel-body">
+        <div class="search-wrap">
+          <span class="search-icon">⌕</span>
+          <input id="search" placeholder="Search province or region…" oninput="renderList()">
+        </div>
+        <div id="prov-list" style="flex:1;overflow-y:auto;min-height:0"></div>
+      </div>
     </div>
-    <div class="pb" id="comparison-panel"></div>
+
+    <!-- CENTER: Map -->
+    <div class="map-panel" id="map-panel">
+      <div class="map-tags" id="map-tags"></div>
+      <canvas id="map-canvas"></canvas>
+      <div class="map-legend" id="map-legend"></div>
+      <div class="map-hint">Scroll to zoom · Drag to pan · Click to select</div>
+      <div class="map-tooltip" id="map-tooltip" style="display:none"></div>
+      <div class="map-loading" id="map-loading">
+        <span class="spin">⟳</span><span>Loading Thailand map…</span>
+      </div>
+    </div>
+
+    <!-- RIGHT: Comparison -->
+    <div class="panel panel-right" style="min-height:0">
+      <div class="panel-header">
+        <span class="panel-title">Compare <span id="sel-count" style="color:var(--c-txt);font-family:var(--mono)">0</span>/4</span>
+        <button class="clear-btn" onclick="clearSel()">✕ Clear</button>
+      </div>
+      <div class="panel-body" style="gap:8px">
+        <div style="flex-shrink:0;display:flex;flex-direction:column;gap:8px">
+          <div class="hh-tabs" id="hh-tabs">
+            <button class="hh-btn active" id="hh-single" onclick="setHH('single')">👤 Solo</button>
+            <button class="hh-btn" id="hh-couple" onclick="setHH('couple')">👫 Couple</button>
+            <button class="hh-btn" id="hh-family" onclick="setHH('family')">👨‍👩‍👧 Family</button>
+          </div>
+        </div>
+        <div id="comp-cards" style="flex:1;overflow-y:auto;min-height:0;display:flex;flex-direction:column;gap:0"></div>
+      </div>
+    </div>
+
   </div>
-</div>
 </div>
 
 <script>
-// ── BASE DATA (Farang Avg = 1.0 multiplier) ───────────────────────────────────
-// meal = estimated monthly food cost (3 meals/day × 30 days, mixed street/restaurant)
-// trans = estimated monthly transport (avg 2 trips/day + occasional Grab)
+// ── CONSTANTS ─────────────────────────────────────────────────────────────────
+const CMP_COLORS = ["#f59e0b","#60a5fa","#f472b6","#34d399"];
+const REG_COLORS = {Bangkok:"#f59e0b",North:"#34d399",Northeast:"#60a5fa",Central:"#a78bfa",South:"#f472b6"};
+
+// Household multipliers PER CATEGORY (the bug fix — each scales differently)
+const HH_MULT = {
+  single: { rent:1.00, meal:1.00, trans:1.00, groc:1.00, util:1.00 },
+  couple: { rent:1.70, meal:1.80, trans:1.40, groc:1.65, util:1.40 },
+  family: { rent:2.30, meal:2.90, trans:1.75, groc:2.20, util:1.70 },
+};
+
+// Lifestyle multipliers per category
+const LS_MULT = {
+  thai: { rent:.65, meal:.60, trans:.70, groc:.75, util:.80 },
+  avg:  { rent:1,   meal:1,   trans:1,   groc:1,   util:1   },
+  hiso: { rent:1.85,meal:1.70,trans:1.80,groc:1.40,util:1.60 },
+};
+const LS_META = {
+  thai: { label:"🛵 Thai Style", desc:"Local street food, shared house, scooter rental. Cheapest local lifestyle.", color:"#34d399" },
+  avg:  { label:"🌏 Farang Avg", desc:"Numbeo averages — mixed local & expat lifestyle. Standard reference mode.", color:"#f59e0b" },
+  hiso: { label:"🥂 Hi-So",     desc:"Luxury condo, mid/high-end restaurants, Grab & taxi. Comfortable expat.", color:"#ef4444" },
+};
+
+const CATS = [
+  {k:"rent",  l:"Rent",      ic:"🏠"},
+  {k:"meal",  l:"Food",      ic:"🍜"},
+  {k:"trans", l:"Transport", ic:"🛺"},
+  {k:"groc",  l:"Groceries", ic:"🛒"},
+  {k:"util",  l:"Utilities", ic:"💡"},
+];
+
+// GeoJSON province name mapping
+const NAME_MAP = {
+  "Bangkok":"Bangkok","Phuket":"Phuket","Chiang Mai":"Chiang Mai","Chiang Rai":"Chiang Rai",
+  "Nonthaburi":"Nonthaburi","Samut Prakan":"Samut Prakarn","Pathum Thani":"Pathum Thani",
+  "Samut Sakhon":"Samut Sakhon","Krabi":"Krabi","Phang Nga":"Phangnga",
+  "Surat Thani":"Surat Thani","Nakhon Si Thammarat":"Nakhon Si Thammarat",
+  "Songkhla":"Songkhla","Pattani":"Pattani","Yala":"Yala","Narathiwat":"Narathiwat",
+  "Satun":"Satun","Trang":"Trang","Nakhon Ratchasima":"Nakhon Ratchasima",
+  "Khon Kaen":"Khon Kaen","Udon Thani":"Udon Thani","Ubon Ratchathani":"Ubon Ratchathani",
+  "Loei":"Loei","Nong Khai":"Nong Khai","Sakon Nakhon":"Sakon Nakhon",
+  "Nakhon Phanom":"Nakhon Phanom","Mukdahan":"Mukdahan","Roi Et":"Roi Et",
+  "Kalasin":"Kalasin","Maha Sarakham":"Maha Sarakham","Buriram":"Buriram","Surin":"Surin",
+  "Si Sa Ket":"Si Sa Ket","Amnat Charoen":"Amnat Charoen","Yasothon":"Yasothon",
+  "Chaiyaphum":"Chaiyaphum","Bueng Kan":"Bueng Kan","Nong Bua Lam Phu":"Nong Bua Lam Phu",
+  "Phitsanulok":"Phitsanulok","Tak":"Tak","Kamphaeng Phet":"Kamphaeng Phet",
+  "Phichit":"Phichit","Phetchabun":"Phetchabun","Nakhon Sawan":"Nakhon Sawan",
+  "Uthai Thani":"Uthai Thani","Chai Nat":"Chainat","Lopburi":"Lop Buri",
+  "Sing Buri":"Sing Buri","Ang Thong":"Ang Thong","Suphan Buri":"Suphan Buri",
+  "Kanchanaburi":"Kanchanaburi","Ratchaburi":"Ratchaburi","Samut Songkhram":"Samut Songkhram",
+  "Nakhon Pathom":"Nakhon Pathom","Phetchaburi":"Phetchaburi",
+  "Prachuap Khiri Khan":"Prachuap Khiri Khan","Chumphon":"Chumphon","Ranong":"Ranong",
+  "Ayutthaya":"Phra Nakhon Si Ayutthaya","Saraburi":"Saraburi","Nakhon Nayok":"Nakhon Nayok",
+  "Prachin Buri":"Prachin Buri","Sa Kaeo":"Sa Kaeo","Chachoengsao":"Chachoengsao",
+  "Chon Buri":"Chon Buri","Rayong":"Rayong","Chanthaburi":"Chanthaburi","Trat":"Trat",
+  "Mae Hong Son":"Mae Hong Son","Lampang":"Lampang","Phrae":"Phrae","Nan":"Nan",
+  "Phayao":"Phayao","Lamphun":"Lamphun","Uttaradit":"Uttaradit","Sukhothai":"Sukhothai",
+  "Hua Hin":"Prachuap Khiri Khan","Pattaya":"Chon Buri","Hat Yai":"Songkhla","Koh Samui":"Surat Thani",
+};
+
+// ── BASE DATA (all values at single-person Farang Avg) ────────────────────────
 const BASE = {
   "Bangkok":             {idx:92,rent:18500,meal:6200,trans:2400,groc:3200,util:1800,reg:"Bangkok",   mealUnit:120,transUnit:"BTS 44฿/trip"},
-  "Phuket":              {idx:88,rent:22000,meal:7800,trans:2800,groc:3800,util:2200,reg:"South",     mealUnit:150,transUnit:"Grab avg 85฿"},
+  "Phuket":              {idx:88,rent:22000,meal:7800,trans:2800,groc:3800,util:2200,reg:"South",     mealUnit:150,transUnit:"Grab ~85฿"},
   "Nonthaburi":          {idx:78,rent:15000,meal:5800,trans:2200,groc:3100,util:1700,reg:"Bangkok",   mealUnit:110,transUnit:"MRT 28฿/trip"},
-  "Koh Samui":           {idx:80,rent:16000,meal:7200,trans:2600,groc:3400,util:2000,reg:"South",     mealUnit:130,transUnit:"Grab avg 90฿"},
+  "Koh Samui":           {idx:80,rent:16000,meal:7200,trans:2600,groc:3400,util:2000,reg:"South",     mealUnit:130,transUnit:"Grab ~90฿"},
   "Pattaya":             {idx:75,rent:14000,meal:5400,trans:2000,groc:3000,util:1600,reg:"Central",   mealUnit:100,transUnit:"Baht bus 10฿"},
   "Samut Prakan":        {idx:74,rent:13500,meal:5200,trans:2200,groc:2950,util:1550,reg:"Bangkok",   mealUnit:98, transUnit:"BTS 30฿/trip"},
   "Krabi":               {idx:72,rent:13000,meal:5100,trans:1900,groc:2900,util:1500,reg:"South",     mealUnit:95, transUnit:"Songthaew 30฿"},
@@ -324,384 +673,449 @@ const BASE = {
   "Trat":                {idx:44,rent:5500, meal:4800,trans:1100,groc:1900,util:950, reg:"Central",   mealUnit:120,transUnit:"Songthaew 20฿",limited:true},
 };
 
-const LS = {
-  thai:{label:"🛵 Thai Style", desc:"Local street food, shared house, scooter rental. Cheapest way to live like a local.",
-        rent:.65,meal:.60,trans:.70,groc:.75,util:.80,color:"#34d399",cls:"thai"},
-  avg: {label:"🌏 Farang Avg",desc:"Numbeo averages — mixed local & expat lifestyle. Standard reference mode.",
-        rent:1,meal:1,trans:1,groc:1,util:1,color:"#f59e0b",cls:"avg"},
-  hiso:{label:"🥂 Hi-So",     desc:"Luxury condo, mid/high-end restaurants, Grab & taxi. Comfortable expat lifestyle.",
-        rent:1.85,meal:1.70,trans:1.80,groc:1.40,util:1.60,color:"#ef4444",cls:"hiso"},
-};
+const PROVS = Object.entries(BASE).map(([n,d])=>({name:n,...d})).sort((a,b)=>b.idx-a.idx);
 
-const NAME_MAP={
-  "Bangkok":"Bangkok","Phuket":"Phuket","Chiang Mai":"Chiang Mai","Chiang Rai":"Chiang Rai",
-  "Nonthaburi":"Nonthaburi","Samut Prakan":"Samut Prakarn","Pathum Thani":"Pathum Thani",
-  "Samut Sakhon":"Samut Sakhon","Krabi":"Krabi","Phang Nga":"Phangnga",
-  "Surat Thani":"Surat Thani","Nakhon Si Thammarat":"Nakhon Si Thammarat",
-  "Songkhla":"Songkhla","Pattani":"Pattani","Yala":"Yala","Narathiwat":"Narathiwat",
-  "Satun":"Satun","Trang":"Trang","Nakhon Ratchasima":"Nakhon Ratchasima",
-  "Khon Kaen":"Khon Kaen","Udon Thani":"Udon Thani","Ubon Ratchathani":"Ubon Ratchathani",
-  "Loei":"Loei","Nong Khai":"Nong Khai","Sakon Nakhon":"Sakon Nakhon",
-  "Nakhon Phanom":"Nakhon Phanom","Mukdahan":"Mukdahan","Roi Et":"Roi Et",
-  "Kalasin":"Kalasin","Maha Sarakham":"Maha Sarakham","Buriram":"Buriram","Surin":"Surin",
-  "Si Sa Ket":"Si Sa Ket","Amnat Charoen":"Amnat Charoen","Yasothon":"Yasothon",
-  "Chaiyaphum":"Chaiyaphum","Bueng Kan":"Bueng Kan","Nong Bua Lam Phu":"Nong Bua Lam Phu",
-  "Phitsanulok":"Phitsanulok","Tak":"Tak","Kamphaeng Phet":"Kamphaeng Phet",
-  "Phichit":"Phichit","Phetchabun":"Phetchabun","Nakhon Sawan":"Nakhon Sawan",
-  "Uthai Thani":"Uthai Thani","Chai Nat":"Chainat","Lopburi":"Lop Buri",
-  "Sing Buri":"Sing Buri","Ang Thong":"Ang Thong","Suphan Buri":"Suphan Buri",
-  "Kanchanaburi":"Kanchanaburi","Ratchaburi":"Ratchaburi","Samut Songkhram":"Samut Songkhram",
-  "Nakhon Pathom":"Nakhon Pathom","Phetchaburi":"Phetchaburi",
-  "Prachuap Khiri Khan":"Prachuap Khiri Khan","Chumphon":"Chumphon","Ranong":"Ranong",
-  "Ayutthaya":"Phra Nakhon Si Ayutthaya","Saraburi":"Saraburi","Nakhon Nayok":"Nakhon Nayok",
-  "Prachin Buri":"Prachin Buri","Sa Kaeo":"Sa Kaeo","Chachoengsao":"Chachoengsao",
-  "Chon Buri":"Chon Buri","Rayong":"Rayong","Chanthaburi":"Chanthaburi","Trat":"Trat",
-  "Mae Hong Son":"Mae Hong Son","Lampang":"Lampang","Phrae":"Phrae","Nan":"Nan",
-  "Phayao":"Phayao","Lamphun":"Lamphun","Uttaradit":"Uttaradit","Sukhothai":"Sukhothai",
-  "Hua Hin":"Prachuap Khiri Khan","Pattaya":"Chon Buri","Hat Yai":"Songkhla",
-  "Koh Samui":"Surat Thani","Samut Sakhon":"Samut Sakhon",
-};
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let sel = ["Bangkok","Chiang Mai"];
+let viewMode = "provinces";
+let lifestyle = "avg";
+let hhType = "single";
+let searchQ = "";
+let geoData = null;
+let proj = null;
+let tr = {k:1,x:0,y:0};
+let isDrag = false;
+let lastM = {x:0,y:0};
+let hovName = null;
 
-const RCOLS={Bangkok:"#f59e0b",North:"#34d399",Northeast:"#60a5fa",Central:"#a78bfa",South:"#f472b6"};
-const CCOLS=["#f59e0b","#60a5fa","#f472b6","#34d399"];
-const CATS=[
-  {k:"rent", l:"Rent/mo",    ic:"🏠"},
-  {k:"meal", l:"Food/mo",    ic:"🍜"},
-  {k:"trans",l:"Transport",  ic:"🛺"},
-  {k:"groc", l:"Groceries",  ic:"🛒"},
-  {k:"util", l:"Utilities",  ic:"💡"},
-];
-
-const PROVS=Object.entries(BASE).map(([n,d])=>({name:n,...d})).sort((a,b)=>b.idx-a.idx);
-
-function getColor(idx){
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+function getColor(idx) {
   if(idx>=85)return"#ef4444";if(idx>=72)return"#f97316";if(idx>=60)return"#f59e0b";
   if(idx>=48)return"#84cc16";if(idx>=36)return"#22c55e";return"#4ade80";
 }
-function fmt(n){return Math.round(n).toLocaleString()+"฿";}
-function applyLS(d,ls){
-  const m=LS[ls];
-  return {...d,rent:Math.round(d.rent*m.rent),meal:Math.round(d.meal*m.meal),
-    trans:Math.round(d.trans*m.trans),groc:Math.round(d.groc*m.groc),util:Math.round(d.util*m.util)};
+function fmt(n) { return Math.round(n).toLocaleString()+"฿"; }
+
+/** Apply lifestyle + household multipliers per category */
+function applyMults(base, ls, hh) {
+  const lm = LS_MULT[ls];
+  const hm = HH_MULT[hh];
+  return {
+    rent:  Math.round(base.rent  * lm.rent  * hm.rent),
+    meal:  Math.round(base.meal  * lm.meal  * hm.meal),
+    trans: Math.round(base.trans * lm.trans * hm.trans),
+    groc:  Math.round(base.groc  * lm.groc  * hm.groc),
+    util:  Math.round(base.util  * lm.util  * hm.util),
+  };
 }
+function totalOf(cats) { return cats.rent+cats.meal+cats.trans+cats.groc+cats.util; }
 
-let sel=["Bangkok","Chiang Mai"],viewMode="provinces",hhType="single",searchQ="",geoData=null,lifestyle="avg";
-let tr={k:1,x:0,y:0},isDrag=false,lastM={x:0,y:0},hov=null,proj=null;
-
-// ── MODAL ────────────────────────────────────────────────────────────────────
-function closeModal(){
-  if(document.getElementById("dont-show").checked){
-    try{localStorage.setItem("tlc_v2_seen","1");}catch(e){}
+// ── MODAL ─────────────────────────────────────────────────────────────────────
+function closeModal() {
+  if(document.getElementById("dont-show").checked) {
+    try{localStorage.setItem("tlc_v3","1");}catch(e){}
   }
   document.getElementById("modal").style.display="none";
 }
-(function initModal(){
+function handleOverlayClick(e) { if(e.target===document.getElementById("modal")) closeModal(); }
+(function initModal() {
   let seen=false;
-  try{seen=!!localStorage.getItem("tlc_v2_seen");}catch(e){}
+  try{seen=!!localStorage.getItem("tlc_v3");}catch(e){}
   if(!seen) document.getElementById("modal").style.display="flex";
 })();
 
-// ── LIFESTYLE ────────────────────────────────────────────────────────────────
-function setLifestyle(ls){
-  lifestyle=ls;
-  ["thai","avg","hiso"].forEach(k=>document.getElementById("ls-"+k).classList.toggle("on",k===ls));
-  document.getElementById("ls-desc").textContent=LS[ls].desc;
+// ── LIFESTYLE ─────────────────────────────────────────────────────────────────
+function setLS(ls) {
+  lifestyle = ls;
+  ["thai","avg","hiso"].forEach(k=>{
+    document.getElementById("ls-"+k).classList.toggle("active",k===ls);
+  });
+  document.getElementById("ls-desc").textContent = LS_META[ls].desc;
   renderAll();
 }
 
-// ── MAP ───────────────────────────────────────────────────────────────────────
-function buildProjection(geo){
-  const canvas=document.getElementById("mc");
-  const W=canvas.width,H=canvas.height;
-  if(!W||!H)return;
-  proj=d3.geoMercator().fitSize([W,H],geo);
+// ── HOUSEHOLD ─────────────────────────────────────────────────────────────────
+function setHH(hh) {
+  hhType = hh;
+  ["single","couple","family"].forEach(k=>{
+    document.getElementById("hh-"+k).classList.toggle("active",k===hh);
+  });
+  renderComparison();
 }
 
-function getFeatureData(feat){
+// ── VIEW ──────────────────────────────────────────────────────────────────────
+function setView(v) {
+  viewMode = v;
+  document.getElementById("btn-cost").classList.toggle("active",v==="provinces");
+  document.getElementById("btn-region").classList.toggle("active",v==="regions");
+  renderAll();
+}
+
+// ── SELECTION ─────────────────────────────────────────────────────────────────
+function toggleSel(name) {
+  if(sel.includes(name)) sel = sel.filter(s=>s!==name);
+  else if(sel.length<4) sel = [...sel,name];
+  else sel = [...sel.slice(1),name];
+  renderAll();
+}
+function clearSel() { sel=[]; renderAll(); }
+
+// ── MAP ───────────────────────────────────────────────────────────────────────
+function buildProj(geo) {
+  const c=document.getElementById("map-canvas");
+  const W=c.width,H=c.height;
+  if(!W||!H) return;
+  proj = d3.geoMercator().fitSize([W,H],geo);
+}
+
+function getFeatureData(feat) {
   const fname=(feat.properties.NAME_1||feat.properties.name||feat.properties.NAME||"").trim();
-  for(const [pname,pdata] of Object.entries(BASE)){
+  for(const [pname,pd] of Object.entries(BASE)) {
     const mapped=NAME_MAP[pname]||pname;
-    if(fname===mapped||fname===pname||fname.toLowerCase()===pname.toLowerCase()||fname.toLowerCase()===mapped.toLowerCase()){
-      return {name:pname,...pdata};
-    }
+    if(fname===mapped||fname===pname||fname.toLowerCase()===pname.toLowerCase()||fname.toLowerCase()===mapped.toLowerCase())
+      return {name:pname,...pd};
   }
-  for(const [pname,pdata] of Object.entries(BASE)){
+  for(const [pname,pd] of Object.entries(BASE)) {
     const fn0=fname.toLowerCase().split(" ")[0];
     const pn0=pname.toLowerCase().split(" ")[0];
-    if(fn0.length>3&&(fn0===pn0||fname.toLowerCase().includes(pn0)||pname.toLowerCase().includes(fn0))){
-      return {name:pname,...pdata};
-    }
+    if(fn0.length>3&&(fn0===pn0||fname.toLowerCase().includes(pn0)||pname.toLowerCase().includes(fn0)))
+      return {name:pname,...pd};
   }
   return null;
 }
 
-function drawMap(){
-  const canvas=document.getElementById("mc");
-  const ctx=canvas.getContext("2d");
-  const W=canvas.width,H=canvas.height;
+function drawMap() {
+  const c=document.getElementById("map-canvas");
+  const ctx=c.getContext("2d");
+  const W=c.width,H=c.height;
   ctx.clearRect(0,0,W,H);
-  ctx.fillStyle="#040d1a";ctx.fillRect(0,0,W,H);
-  if(!geoData||!proj)return;
-  const pathGen=d3.geoPath().projection(proj).context(ctx);
+  ctx.fillStyle="#040d1a"; ctx.fillRect(0,0,W,H);
+  if(!geoData||!proj) return;
+
+  const pg = d3.geoPath().projection(proj).context(ctx);
   ctx.save();
   ctx.translate(tr.x,tr.y);
   ctx.scale(tr.k,tr.k);
 
   geoData.features.forEach(feat=>{
-    const pd=getFeatureData(feat);
+    const pd = getFeatureData(feat);
     const fname=(feat.properties.NAME_1||feat.properties.name||"");
-    const isHov=hov===fname,isSel=pd&&sel.includes(pd.name);
-    let fill=pd?(viewMode==="regions"?RCOLS[pd.reg]||"#334155":getColor(pd.idx)):"#1e2d4a";
+    const isHov = hovName===fname;
+    const isSel = pd&&sel.includes(pd.name);
+    let fill = pd ? (viewMode==="regions"?REG_COLORS[pd.reg]||"#334155":getColor(pd.idx)) : "#1e2d4a";
 
-    ctx.beginPath();pathGen(feat);
-    ctx.fillStyle=fill+(isHov?"cc":isSel?"ee":"55");
+    // fill
+    ctx.beginPath(); pg(feat);
+    ctx.fillStyle = fill+(isHov?"cc":isSel?"ee":"50");
     ctx.fill();
 
-    ctx.beginPath();pathGen(feat);
-    if(isSel){ctx.strokeStyle="#ffffff";ctx.lineWidth=2/tr.k;}
-    else if(isHov){ctx.strokeStyle=fill;ctx.lineWidth=1.5/tr.k;}
-    else{ctx.strokeStyle="rgba(4,13,26,0.9)";ctx.lineWidth=0.8/tr.k;}
+    // stroke
+    ctx.beginPath(); pg(feat);
+    if(isSel) { ctx.strokeStyle="#ffffff"; ctx.lineWidth=2/tr.k; }
+    else if(isHov) { ctx.strokeStyle=fill+"ee"; ctx.lineWidth=1.5/tr.k; }
+    else { ctx.strokeStyle="rgba(4,13,26,0.85)"; ctx.lineWidth=0.8/tr.k; }
     ctx.stroke();
 
-    if((isHov||isSel)&&pd){
+    // label
+    if((isHov||isSel)&&pd) {
       const [cx,cy]=proj(d3.geoCentroid(feat));
       const fs=Math.max(8,Math.round(10/tr.k));
-      ctx.font=`${isSel?"bold ":""}${fs}px 'Courier New'`;
-      ctx.fillStyle=isSel?"#fff":"rgba(255,255,255,0.9)";
-      ctx.textAlign="center";ctx.textBaseline="middle";
-      ctx.shadowColor="rgba(0,0,0,0.9)";ctx.shadowBlur=4/tr.k;
+      ctx.font=`${isSel?"600 ":"500 "}${fs}px Inter,sans-serif`;
+      ctx.fillStyle=isSel?"#fff":"rgba(255,255,255,0.88)";
+      ctx.textAlign="center"; ctx.textBaseline="middle";
+      ctx.shadowColor="rgba(0,0,0,0.95)"; ctx.shadowBlur=5/tr.k;
       ctx.fillText(pd.name.length>13?pd.name.slice(0,12)+"…":pd.name,cx,cy);
-      ctx.shadowBlur=0;ctx.textBaseline="alphabetic";
+      ctx.shadowBlur=0; ctx.textBaseline="alphabetic";
     }
   });
   ctx.restore();
 }
 
-function getFeatureAt(mx,my){
-  if(!geoData||!proj)return null;
-  const canvas=document.getElementById("mc");
-  const ctx=canvas.getContext("2d");
-  const lx=(mx-tr.x)/tr.k,ly=(my-tr.y)/tr.k;
+function getFeatureAt(mx,my) {
+  if(!geoData||!proj) return null;
+  const c=document.getElementById("map-canvas");
+  const ctx=c.getContext("2d");
+  const lx=(mx-tr.x)/tr.k, ly=(my-tr.y)/tr.k;
   const gen=d3.geoPath().projection(proj).context(ctx);
-  for(const feat of geoData.features){ctx.beginPath();gen(feat);if(ctx.isPointInPath(lx,ly))return feat;}
+  for(const feat of geoData.features) {
+    ctx.beginPath(); gen(feat);
+    if(ctx.isPointInPath(lx,ly)) return feat;
+  }
   return null;
 }
 
-function showTT(p,x,y){
-  const ad=applyLS(p,lifestyle);
-  const c=viewMode==="regions"?RCOLS[p.reg]:getColor(p.idx);
-  const lc=LS[lifestyle].color;
-  const tt=document.getElementById("tooltip");
-  tt.style.borderColor=c+"40";
-  const tot=ad.rent+ad.meal+ad.groc+ad.util+ad.trans;
+function showTooltip(pd,x,y) {
+  const cats = applyMults(pd,lifestyle,"single"); // tooltip always shows solo
+  const c = viewMode==="regions"?REG_COLORS[pd.reg]:getColor(pd.idx);
+  const lc = LS_META[lifestyle].color;
+  const tt = document.getElementById("map-tooltip");
+  tt.style.borderColor=c+"50";
+  const tot=totalOf(cats);
   tt.innerHTML=`
-    <div style="display:flex;align-items:center;gap:5px;margin-bottom:3px">
-      <div style="width:7px;height:7px;border-radius:50%;background:${c};flex-shrink:0"></div>
-      <div class="ttn">${p.name}${p.limited?` <span style="font-size:7px;color:#f59e0b;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.2);border-radius:3px;padding:1px 3px">Limited data</span>`:""}
-      </div>
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+      <div style="width:8px;height:8px;border-radius:50%;background:${c};flex-shrink:0"></div>
+      <div class="tt-name">${pd.name}${pd.limited?` <span style="font-size:8px;color:#f59e0b;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.2);border-radius:3px;padding:1px 4px">Limited</span>`:""}</div>
     </div>
-    <div class="tts">${p.reg} · Index ${p.idx}/100 · <span style="color:${lc}">${LS[lifestyle].label}</span></div>
-    <div class="ttg">
-      <div class="tti">🏠 ${fmt(ad.rent)}/mo</div>
-      <div class="tti">🍜 ${fmt(ad.meal)}/mo</div>
-      <div class="tti">🛺 ${fmt(ad.trans)}/mo</div>
-      <div class="tti">🛒 ${fmt(ad.groc)}/mo</div>
+    <div class="tt-meta">${pd.reg} · Index ${pd.idx}/100 · <span style="color:${lc}">${LS_META[lifestyle].label}</span></div>
+    <div class="tt-grid">
+      <div class="tt-item">🏠 ${fmt(cats.rent)}</div>
+      <div class="tt-item">🍜 ${fmt(cats.meal)}/mo</div>
+      <div class="tt-item">🛺 ${fmt(cats.trans)}/mo</div>
+      <div class="tt-item">🛒 ${fmt(cats.groc)}</div>
     </div>
-    <div class="ttb" style="color:${c}">Solo total ~${fmt(tot)}/month</div>`;
-  const wrap=document.getElementById("map-wrap");
+    <div class="tt-total" style="color:${c}">Solo ~${fmt(tot)}/month</div>`;
+  const wrap=document.getElementById("map-panel");
   const wr=wrap.getBoundingClientRect();
-  let tx=x+12,ty=y-8;
-  if(tx+210>wr.width)tx=x-218;
-  if(ty+160>wr.height)ty=y-168;
-  tt.style.left=tx+"px";tt.style.top=ty+"px";tt.style.display="block";
+  let tx=x+14,ty=y-10;
+  if(tx+220>wr.width) tx=x-228;
+  if(ty+170>wr.height) ty=y-178;
+  tt.style.left=tx+"px"; tt.style.top=ty+"px"; tt.style.display="block";
 }
-function hideTT(){document.getElementById("tooltip").style.display="none";}
+function hideTooltip() { document.getElementById("map-tooltip").style.display="none"; }
 
-function setupCanvas(){
-  const canvas=document.getElementById("mc");
-  const wrap=document.getElementById("map-wrap");
-  function resize(){
+function setupCanvas() {
+  const canvas=document.getElementById("map-canvas");
+  const wrap=document.getElementById("map-panel");
+  const resize=()=>{
     const r=wrap.getBoundingClientRect();
-    canvas.width=r.width;canvas.height=r.height;
-    if(geoData)buildProjection(geoData);drawMap();
-  }
+    canvas.width=Math.floor(r.width);
+    canvas.height=Math.floor(r.height);
+    if(geoData) buildProj(geoData);
+    drawMap();
+  };
+
   canvas.addEventListener("mousemove",e=>{
     const r=canvas.getBoundingClientRect();
     const cx=e.clientX-r.left,cy=e.clientY-r.top;
     if(isDrag){tr.x+=e.clientX-lastM.x;tr.y+=e.clientY-lastM.y;lastM={x:e.clientX,y:e.clientY};drawMap();return;}
     const feat=getFeatureAt(cx,cy);
-    const fname=feat?(feat.properties.NAME_1||feat.properties.name||""):null;
-    if(fname!==hov){hov=fname;drawMap();}
-    if(feat){const pd=getFeatureData(feat);if(pd)showTT(pd,cx,cy);else hideTT();}else hideTT();
+    const fn=feat?(feat.properties.NAME_1||feat.properties.name||""):null;
+    if(fn!==hovName){hovName=fn;drawMap();}
+    if(feat){const pd=getFeatureData(feat);if(pd)showTooltip(pd,cx,cy);else hideTooltip();}
+    else hideTooltip();
   });
-  canvas.addEventListener("mousedown",e=>{isDrag=true;lastM={x:e.clientX,y:e.clientY};});
+  canvas.addEventListener("mousedown",e=>{isDrag=true;lastM={x:e.clientX,y:e.clientY};canvas.style.cursor="grabbing";});
   canvas.addEventListener("mouseup",e=>{
     const dx=Math.abs(e.clientX-lastM.x),dy=Math.abs(e.clientY-lastM.y);
-    isDrag=false;
-    if(dx<4&&dy<4){
+    isDrag=false; canvas.style.cursor="crosshair";
+    if(dx<5&&dy<5){
       const r=canvas.getBoundingClientRect();
       const feat=getFeatureAt(e.clientX-r.left,e.clientY-r.top);
       if(feat){const pd=getFeatureData(feat);if(pd)toggleSel(pd.name);}
     }
   });
-  canvas.addEventListener("mouseleave",()=>{isDrag=false;hov=null;hideTT();drawMap();});
+  canvas.addEventListener("mouseleave",()=>{isDrag=false;hovName=null;hideTooltip();drawMap();canvas.style.cursor="crosshair";});
   canvas.addEventListener("wheel",e=>{
     e.preventDefault();
     const f=e.deltaY<0?1.15:0.87;
     const r=canvas.getBoundingClientRect();
     const mx=e.clientX-r.left,my=e.clientY-r.top;
-    tr.k=Math.max(0.5,Math.min(12,tr.k*f));
-    tr.x=mx-(mx-tr.x)*f;tr.y=my-(my-tr.y)*f;drawMap();
+    tr.k=Math.max(0.5,Math.min(14,tr.k*f));
+    tr.x=mx-(mx-tr.x)*f; tr.y=my-(my-tr.y)*f;
+    drawMap();
   },{passive:false});
-  window.addEventListener("resize",resize);
-  resize();
+
+  // Touch support
+  let lastDist=null;
+  canvas.addEventListener("touchstart",e=>{
+    if(e.touches.length===1){isDrag=true;lastM={x:e.touches[0].clientX,y:e.touches[0].clientY};}
+    else if(e.touches.length===2){
+      const dx=e.touches[0].clientX-e.touches[1].clientX;
+      const dy=e.touches[0].clientY-e.touches[1].clientY;
+      lastDist=Math.hypot(dx,dy);
+    }
+    e.preventDefault();
+  },{passive:false});
+  canvas.addEventListener("touchmove",e=>{
+    if(e.touches.length===1&&isDrag){
+      tr.x+=e.touches[0].clientX-lastM.x;
+      tr.y+=e.touches[0].clientY-lastM.y;
+      lastM={x:e.touches[0].clientX,y:e.touches[0].clientY};
+      drawMap();
+    } else if(e.touches.length===2&&lastDist!==null){
+      const dx=e.touches[0].clientX-e.touches[1].clientX;
+      const dy=e.touches[0].clientY-e.touches[1].clientY;
+      const dist=Math.hypot(dx,dy);
+      const f=dist/lastDist;
+      tr.k=Math.max(0.5,Math.min(14,tr.k*f)); lastDist=dist;
+      drawMap();
+    }
+    e.preventDefault();
+  },{passive:false});
+  canvas.addEventListener("touchend",e=>{isDrag=false;lastDist=null;});
+
+  // Observe container resize
+  if(window.ResizeObserver){
+    new ResizeObserver(resize).observe(wrap);
+  } else {
+    window.addEventListener("resize",resize);
+  }
+  setTimeout(resize,50);
 }
 
-async function loadGeo(){
-  const urls=["https://cdn.jsdelivr.net/gh/apisit/thailand.json@master/thailand.json","https://raw.githubusercontent.com/apisit/thailand.json/master/thailand.json"];
+async function loadGeo() {
+  const urls=[
+    "https://cdn.jsdelivr.net/gh/apisit/thailand.json@master/thailand.json",
+    "https://raw.githubusercontent.com/apisit/thailand.json/master/thailand.json",
+  ];
   for(const url of urls){
     try{
-      const res=await fetch(url);if(!res.ok)continue;
-      const geo=await res.json();
-      geoData=geo;buildProjection(geo);
-      document.getElementById("map-loading").style.display="none";drawMap();return;
+      const r=await fetch(url); if(!r.ok) continue;
+      const geo=await r.json();
+      geoData=geo; buildProj(geo);
+      document.getElementById("map-loading").style.display="none";
+      drawMap(); return;
     }catch(e){continue;}
   }
-  document.getElementById("map-loading").innerHTML='<span style="color:#ef4444">⚠ Could not load GeoJSON map</span>';
+  document.getElementById("map-loading").innerHTML='<span style="color:#ef4444">⚠ Could not load map GeoJSON</span>';
 }
 
-// ── UI ────────────────────────────────────────────────────────────────────────
-function renderStats(){
-  const t=PROVS.length,avg=Math.round(PROVS.reduce((s,p)=>s+p.idx,0)/t);
-  const cheap=PROVS[PROVS.length-1],exp=PROVS[0];
+// ── RENDER STATS ──────────────────────────────────────────────────────────────
+function renderStats() {
+  const t=PROVS.length;
+  const avg=Math.round(PROVS.reduce((s,p)=>s+p.idx,0)/t);
+  const cheap=PROVS[t-1],exp=PROVS[0];
   document.getElementById("stats-row").innerHTML=`
-    <div class="sc"><div class="sl">PROVINCES</div><div class="sv">${t}</div></div>
-    <div class="sc"><div class="sl">AVG INDEX</div><div class="sv">${avg}/100</div></div>
-    <div class="sc"><div class="sl">MOST EXPENSIVE</div><div class="sv" style="color:#ef4444;font-size:10px">${exp.name}</div></div>
-    <div class="sc"><div class="sl">CHEAPEST</div><div class="sv" style="color:#4ade80;font-size:10px">${cheap.name}</div></div>`;
-  document.getElementById("prov-count").textContent=t;
+    <div class="stat-card"><div class="stat-label">PROVINCES</div><div class="stat-value">${t}</div></div>
+    <div class="stat-card"><div class="stat-label">AVG INDEX</div><div class="stat-value">${avg}/100</div></div>
+    <div class="stat-card"><div class="stat-label">MOST EXPENSIVE</div><div class="stat-value" style="color:#ef4444;font-size:11px">${exp.name}</div></div>
+    <div class="stat-card"><div class="stat-label">CHEAPEST</div><div class="stat-value" style="color:#4ade80;font-size:11px">${cheap.name}</div></div>`;
+  document.getElementById("pcount").textContent=t;
 }
 
-function renderList(){
-  searchQ=document.getElementById("search").value;
-  const fil=PROVS.filter(p=>p.name.toLowerCase().includes(searchQ.toLowerCase())||p.reg.toLowerCase().includes(searchQ.toLowerCase()));
+// ── RENDER LIST ───────────────────────────────────────────────────────────────
+function renderList() {
+  searchQ=document.getElementById("search").value.toLowerCase();
+  const fil=PROVS.filter(p=>p.name.toLowerCase().includes(searchQ)||p.reg.toLowerCase().includes(searchQ));
   document.getElementById("prov-list").innerHTML=fil.map(p=>{
-    const si2=sel.indexOf(p.name),isSel=si2>=0;
-    const ad=applyLS(p,lifestyle);
-    const tot=ad.rent+ad.meal+ad.groc+ad.util+ad.trans;
-    return `<div class="pi" style="${isSel?`background:${CCOLS[si2]}10;border-color:${CCOLS[si2]}30`:""}" onclick="toggleSel('${p.name.replace(/'/g,"\\'")}')">
-      <div class="pd" style="background:${viewMode==="regions"?RCOLS[p.reg]:getColor(p.idx)}"></div>
+    const si=sel.indexOf(p.name), isSel=si>=0;
+    const cats=applyMults(p,lifestyle,hhType);
+    const tot=totalOf(cats);
+    return `<div class="prov-item" style="${isSel?`background:${CMP_COLORS[si]}0d;border-color:${CMP_COLORS[si]}35`:""}" onclick="toggleSel('${p.name.replace(/'/g,"\\'")}')">
+      <div class="prov-dot" style="background:${viewMode==="regions"?REG_COLORS[p.reg]:getColor(p.idx)}"></div>
       <div style="flex:1;min-width:0">
-        <div class="pn" style="${isSel?"font-weight:700":""}">${p.name}${p.limited?`<span class="lim"> ⚠ Limited</span>`:""}</div>
-        <div class="pr">${p.reg} · IDX ${p.idx}</div>
+        <div class="prov-name" style="${isSel?"font-weight:700":""}">${p.name}</div>
+        <div class="prov-region">${p.reg} · ${p.idx}/100</div>
       </div>
-      <div class="pbudget">${Math.round(tot/1000)}k฿</div>
-      ${isSel?`<div class="sbadge" style="background:${CCOLS[si2]}">${si2+1}</div>`:""}
+      ${p.limited?`<span class="limited-tag">Limited</span>`:""}
+      <div class="prov-budget">${Math.round(tot/1000)}k฿</div>
+      ${isSel?`<div class="sel-badge" style="background:${CMP_COLORS[si]}">${si+1}</div>`:""}
     </div>`;
   }).join("");
 }
 
-function renderTags(){
-  document.getElementById("sel-tags").innerHTML=sel.map((n,i)=>`<div class="tag" style="background:${CCOLS[i]}">${i+1} ${n}</div>`).join("");
+// ── RENDER MAP OVERLAYS ───────────────────────────────────────────────────────
+function renderMapOverlays() {
+  // Tags
+  document.getElementById("map-tags").innerHTML=sel.map((n,i)=>
+    `<div class="map-tag" style="background:${CMP_COLORS[i]}">${i+1} ${n}</div>`
+  ).join("");
   document.getElementById("sel-count").textContent=sel.length;
-}
 
-function renderLegend(){
-  const lsm=LS[lifestyle];
-  const lsRow=`<div style="border-top:1px solid rgba(255,255,255,0.05);margin-top:5px;padding-top:5px">
-    <div class="lr"><div style="width:8px;height:8px;border-radius:50%;background:${lsm.color};flex-shrink:0"></div>
-    <span class="ll" style="color:${lsm.color}">${lsm.label}</span></div></div>`;
-  if(viewMode==="regions"){
-    document.getElementById("legend").innerHTML=`<div class="lt">REGIONS</div>`+Object.entries(RCOLS).map(([r,c])=>`<div class="lr"><div class="lb" style="background:${c}"></div><span class="ll">${r}</span></div>`).join("")+lsRow;
-  } else {
-    document.getElementById("legend").innerHTML=`<div class="lt">COST INDEX</div>`+[{l:"85–100",c:"#ef4444"},{l:"72–84",c:"#f97316"},{l:"60–71",c:"#f59e0b"},{l:"48–59",c:"#84cc16"},{l:"36–47",c:"#22c55e"},{l:"0–35",c:"#4ade80"}].map(x=>`<div class="lr"><div class="lb" style="background:${x.c}"></div><span class="ll">${x.l}</span></div>`).join("")+lsRow;
-  }
-}
-
-function renderComparison(){
-  const panel=document.getElementById("comparison-panel");
-  if(!sel.length){
-    panel.innerHTML=`<div class="es"><div class="bi" style="font-size:28px">🗺️</div><div class="mg">Click a province on the map<br>or in the list to compare</div><div style="font-size:9px;color:#1e2d4a;font-family:var(--fn);margin-top:3px">Up to 4 provinces</div></div>`;return;
-  }
-  const data=sel.map(n=>({name:n,...BASE[n]})).filter(d=>d.idx);
-  const applied=data.map(d=>applyLS(d,lifestyle));
-  const hm={single:1,couple:1.7,family:2.5}[hhType];
-  const totals=applied.map(d=>(d.rent+d.meal+d.groc+d.util+d.trans)*hm);
-  const maxT=Math.max(...totals);
-  const lsm=LS[lifestyle];
-
-  let html=`<div style="display:flex;align-items:center;gap:6px;margin-bottom:9px;flex-shrink:0;flex-wrap:wrap">
-    <div style="font-size:8px;color:var(--mut);letter-spacing:1px;font-weight:700">HOUSEHOLD:</div>
-    <div class="bts">${["single","couple","family"].map(t=>`<button class="bt${hhType===t?" on":""}" onclick="setHH('${t}')">${t==="single"?"👤 Solo":t==="couple"?"👫 Couple":"👨‍👩‍👧 Family"}</button>`).join("")}</div>
-    <div style="margin-left:auto;padding:2px 7px;border-radius:4px;font-size:8px;font-family:var(--fn);background:${lsm.color}18;color:${lsm.color};border:1px solid ${lsm.color}30">${lsm.label}</div>
+  // Legend
+  const lsColor=LS_META[lifestyle].color, lsLabel=LS_META[lifestyle].label;
+  const lsRow=`<div style="border-top:1px solid rgba(255,255,255,0.06);margin-top:6px;padding-top:6px">
+    <div class="leg-row"><div style="width:8px;height:8px;border-radius:50%;background:${lsColor};flex-shrink:0"></div><span class="leg-label" style="color:${lsColor}">${lsLabel}</span></div>
   </div>`;
+  if(viewMode==="regions") {
+    document.getElementById("map-legend").innerHTML=`<div class="leg-title">Regions</div>`
+      +Object.entries(REG_COLORS).map(([r,c])=>`<div class="leg-row"><div class="leg-bar" style="background:${c}"></div><span class="leg-label">${r}</span></div>`).join("")
+      +lsRow;
+  } else {
+    document.getElementById("map-legend").innerHTML=`<div class="leg-title">Cost Index</div>`
+      +[{l:"85–100",c:"#ef4444"},{l:"72–84",c:"#f97316"},{l:"60–71",c:"#f59e0b"},{l:"48–59",c:"#84cc16"},{l:"36–47",c:"#22c55e"},{l:"0–35",c:"#4ade80"}]
+      .map(x=>`<div class="leg-row"><div class="leg-bar" style="background:${x.c}"></div><span class="leg-label">${x.l}</span></div>`).join("")
+      +lsRow;
+  }
+}
 
-  applied.forEach((d,i)=>{
-    const baseD=data[i];
-    const tot=Math.round((d.rent+d.meal+d.groc+d.util+d.trans)*hm);
-    const c=CCOLS[i];
-    html+=`<div class="cc" style="background:${c}08;border-left-color:${c}">
-      <div class="ch">
+// ── RENDER COMPARISON ─────────────────────────────────────────────────────────
+function renderComparison() {
+  const panel=document.getElementById("comp-cards");
+  if(!sel.length) {
+    panel.innerHTML=`<div class="empty-state">
+      <div class="empty-icon">🗺️</div>
+      <div class="empty-title">No provinces selected</div>
+      <div class="empty-sub">Click on the map or list to compare up to 4 provinces</div>
+    </div>`;
+    return;
+  }
+
+  const cards=sel.map(name=>({name, base:BASE[name], cats:applyMults(BASE[name],lifestyle,hhType)}))
+                 .filter(d=>d.base);
+  const totals=cards.map(d=>totalOf(d.cats));
+  const maxT=Math.max(...totals);
+  const lsm=LS_META[lifestyle];
+
+  let html=cards.map((d,i)=>{
+    const {base,cats}=d;
+    const tot=totalOf(cats);
+    const c=CMP_COLORS[i];
+    const pct=(tot/maxT*100).toFixed(1);
+    // per-cat max across all cards (for mini bars)
+    const catMaxes=CATS.reduce((acc,cat)=>{
+      acc[cat.k]=Math.max(...cards.map(dd=>dd.cats[cat.k]));return acc;
+    },{});
+
+    return `<div class="comp-card" style="background:${c}07;border-left-color:${c};border-top-color:${c}18;border-right-color:${c}18;border-bottom-color:${c}18">
+      <div class="comp-head">
         <div>
-          <div class="cn">${d.name}${baseD.limited?` <span class="lim">⚠ Limited data (1 contributor)</span>`:""}</div>
-          <div class="crg" style="color:${c}">${d.reg} · IDX ${d.idx}/100</div>
+          <div class="comp-name">${d.name}${base.limited?` <span style="font-size:8px;color:#f59e0b;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.2);border-radius:3px;padding:1px 4px">Limited</span>`:""}</div>
+          <div class="comp-region" style="color:${c}">${base.reg} · ${base.idx}/100 index</div>
         </div>
         <div style="text-align:right">
-          <div class="ca" style="color:${c}">${Math.round(tot/1000)}k฿</div>
-          <div class="cs">/month</div>
+          <div class="comp-total" style="color:${c}">${Math.round(tot/1000)}k฿</div>
+          <div class="comp-sub">/month · ${hhType}</div>
         </div>
       </div>
-      <div class="pb3"><div class="pf" style="background:${c};width:${(tot/maxT*100).toFixed(1)}%"></div></div>
-      <div class="cg">
-        <div class="ci"><span class="cl">🏠 Rent</span><span class="cv">${fmt(d.rent)}<span style="font-size:7px;color:#334155">/mo</span></span></div>
-        <div class="ci"><span class="cl">🍜 Food</span><div>
-          <span class="cv">${fmt(d.meal)}<span style="font-size:7px;color:#334155">/mo</span></span>
-          <span class="cvsub">${fmt(baseD.mealUnit)}/meal (unit)</span>
-        </div></div>
-        <div class="ci"><span class="cl">🛺 Transport</span><div>
-          <span class="cv">${fmt(d.trans)}<span style="font-size:7px;color:#334155">/mo</span></span>
-          <span class="cvsub">${baseD.transUnit}</span>
-        </div></div>
-        <div class="ci"><span class="cl">🛒 Groceries</span><span class="cv">${fmt(d.groc)}</span></div>
-        <div class="ci"><span class="cl">💡 Utilities</span><span class="cv">${fmt(d.util)}</span></div>
+      <div class="prog-bar"><div class="prog-fill" style="background:linear-gradient(90deg,${c}80,${c});width:${pct}%"></div></div>
+      <div class="cat-grid">
+        ${CATS.map(cat=>{
+          const val=cats[cat.k];
+          const catPct=(val/catMaxes[cat.k]*100).toFixed(1);
+          const sub=cat.k==="meal"?`${fmt(base.mealUnit)}/meal unit`:cat.k==="trans"?base.transUnit:"";
+          return `<div class="cat-item">
+            <div class="cat-label">${cat.ic} ${cat.l}</div>
+            <div class="cat-value">${fmt(val)}</div>
+            ${sub?`<div class="cat-sub">${sub}</div>`:""}
+            <div class="cat-bar-wrap"><div class="cat-bar-fill" style="background:${c};width:${catPct}%"></div></div>
+          </div>`;
+        }).join("")}
       </div>
-      <div style="margin-top:7px;padding-top:6px;border-top:1px solid rgba(255,255,255,0.04);font-size:8px;color:#334155;font-family:var(--fn)">
-        Monthly estimates based on avg usage · <span style="color:${lsm.color}">${lsm.label}</span> mode
-      </div>
+      <div class="comp-footer">Monthly estimates · <span style="color:${lsm.color}">${lsm.label}</span> · ${hhType} household. Food & transport based on avg local usage.</div>
     </div>`;
-  });
+  }).join("");
 
-  if(applied.length>1){
-    html+=`<div class="cmp2"><div class="cmt">CATEGORY BREAKDOWN</div>`;
-    [{k:"rent",ic:"🏠"},{k:"meal",ic:"🍜"},{k:"trans",ic:"🛺"},{k:"groc",ic:"🛒"},{k:"util",ic:"💡"}].forEach(cat=>{
-      const vals=applied.map(d=>d[cat.k]),maxC=Math.max(...vals);
-      html+=`<div style="margin-bottom:8px"><div style="font-size:8px;color:var(--mut);margin-bottom:3px">${cat.ic} ${CATS.find(c=>c.k===cat.k)?.l}</div>`;
-      applied.forEach((d,i)=>{
-        html+=`<div class="cbr"><span class="cbn">${d.name}</span><div class="cbw"><div class="cbf" style="background:${CCOLS[i]};width:${(d[cat.k]/maxC*100).toFixed(1)}%"></div></div><span class="cbv">${fmt(d[cat.k])}</span></div>`;
+  // Breakdown if >1 province
+  if(cards.length>1) {
+    html+=`<div class="breakdown-panel"><div class="breakdown-title">Category Breakdown</div>`;
+    CATS.forEach(cat=>{
+      const vals=cards.map(d=>d.cats[cat.k]);
+      const maxC=Math.max(...vals);
+      html+=`<div class="bk-cat"><div class="bk-cat-label">${cat.ic} ${cat.l}</div>`;
+      cards.forEach((d,i)=>{
+        html+=`<div class="bk-row">
+          <span class="bk-name">${d.name}</span>
+          <div class="bk-bar-wrap"><div class="bk-bar-fill" style="background:${CMP_COLORS[i]};width:${(d.cats[cat.k]/maxC*100).toFixed(1)}%"></div></div>
+          <span class="bk-val">${fmt(d.cats[cat.k])}</span>
+        </div>`;
       });
       html+="</div>";
     });
     html+="</div>";
   }
+
   panel.innerHTML=html;
 }
 
-function renderAll(){renderStats();renderList();renderTags();renderLegend();renderComparison();drawMap();}
-function toggleSel(n){
-  if(sel.includes(n))sel=sel.filter(s=>s!==n);
-  else if(sel.length<4)sel=[...sel,n];
-  else sel=[...sel.slice(1),n];
-  renderAll();
+function renderAll() {
+  renderStats();
+  renderList();
+  renderMapOverlays();
+  renderComparison();
+  drawMap();
 }
-function clearSel(){sel=[];renderAll();}
-function setView(v){
-  viewMode=v;
-  document.getElementById("btn-p").classList.toggle("on",v==="provinces");
-  document.getElementById("btn-r").classList.toggle("on",v==="regions");
-  renderAll();
-}
-function setHH(t){hhType=t;renderComparison();}
 
+// ── BOOT ──────────────────────────────────────────────────────────────────────
 setupCanvas();
 renderStats();
 renderAll();
