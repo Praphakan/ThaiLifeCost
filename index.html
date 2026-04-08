@@ -50,9 +50,25 @@ body{min-height:100dvh;background:var(--bg);color:var(--t1);font-family:var(--fo
 .ls-btn.avg.on{background:rgba(245,158,11,.15);color:#f59e0b;border:1px solid rgba(245,158,11,.25)}
 .ls-btn.hiso.on{background:rgba(239,68,68,.15);color:#ef4444;border:1px solid rgba(239,68,68,.25)}
 .ls-desc{font-size:10px;color:var(--t2);flex:1}
+.season-wrap{display:none;align-items:center;gap:8px;margin-left:auto;flex-shrink:0}
+.season-wrap.visible{display:flex}
+.season-lbl{font-size:9px;font-weight:700;color:var(--t2);letter-spacing:.8px;white-space:nowrap}
+.season-grp{display:flex;gap:0;padding:2px;background:var(--bg);border-radius:var(--r-sm);border:1px solid var(--bd)}
+.season-btn{display:flex;align-items:center;gap:4px;padding:5px 11px;border-radius:6px;border:none;cursor:pointer;font-size:10px;font-weight:600;font-family:var(--font);transition:all .2s var(--ease);white-space:nowrap;background:transparent;color:var(--t2)}
+.season-btn:hover:not(.on){background:rgba(255,255,255,.04);color:var(--t1)}
+.season-btn.low.on{background:rgba(96,165,250,.15);color:#60a5fa;border:1px solid rgba(96,165,250,.3)}
+.season-btn.high.on{background:rgba(251,191,36,.15);color:#fbbf24;border:1px solid rgba(251,191,36,.3)}
+.season-pill{display:inline-flex;align-items:center;gap:4px;padding:2px 7px;border-radius:10px;font-size:9px;font-weight:600;font-family:var(--mono)}
+.season-pill.low{background:rgba(96,165,250,.12);color:#60a5fa;border:1px solid rgba(96,165,250,.25)}
+.season-pill.high{background:rgba(251,191,36,.12);color:#fbbf24;border:1px solid rgba(251,191,36,.25)}
 
 /* ── STATS ── */
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:10px 16px;flex-shrink:0}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;padding:10px 16px;flex-shrink:0}
+.stat-btn{cursor:pointer;user-select:none;transition:all .2s var(--ease)}
+.stat-btn:hover{border-color:var(--bd2);background:var(--s2)}
+.stat-mode-on{border-color:var(--amber)!important;background:rgba(245,158,11,.08)!important}
+.stat-mode-on .stat-lbl{color:var(--amber)}
+.stat-mode-on .stat-val{color:var(--amber)}
 .stat{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r-md);padding:10px 14px;transition:border-color .2s}
 .stat:hover{border-color:var(--bd2)}
 .stat-lbl{font-size:8px;font-weight:700;color:var(--t2);letter-spacing:.9px;margin-bottom:4px}
@@ -219,6 +235,9 @@ body{min-height:100dvh;background:var(--bg);color:var(--t1);font-family:var(--fo
   .hdr{padding:10px 14px}
   .ls-bar{padding:7px 14px}
   .ls-desc{display:none}
+  .season-lbl{display:none}
+  .season-btn{padding:5px 8px;font-size:9px}
+  .season-wrap{margin-left:0}
   .logo-sub{display:none}
 }
 @media(max-width:520px){
@@ -304,6 +323,13 @@ body{min-height:100dvh;background:var(--bg);color:var(--t1);font-family:var(--fo
     <button class="ls-btn hiso"     id="ls-hiso" onclick="setLS('hiso')">&#x1F942; Hi-So</button>
   </div>
   <span class="ls-desc" id="ls-desc">Numbeo averages &mdash; mixed local &amp; expat lifestyle.</span>
+  <div class="season-wrap" id="season-wrap" title="High Season (Nov–Feb): tourism peak &mdash; higher rents &amp; services.&#10;Low Season (May–Oct): better deals on accommodation &amp; restaurants.">
+    <span class="season-lbl">SEASON</span>
+    <div class="season-grp">
+      <button class="season-btn low" id="season-low" onclick="setSeason('low')">&#x1F327;&#xFE0F; Low</button>
+      <button class="season-btn high on" id="season-high" onclick="setSeason('high')">&#x2600;&#xFE0F; High</button>
+    </div>
+  </div>
 </div>
 
 <div class="stats" id="stats-row"></div>
@@ -313,7 +339,7 @@ body{min-height:100dvh;background:var(--bg);color:var(--t1);font-family:var(--fo
   <!-- Desktop province list -->
   <div class="panel panel-left">
     <div class="p-hdr">
-      <span class="p-title">Provinces <span id="pcount" style="color:var(--t1);font-family:var(--mono)">0</span></span>
+      <span class="p-title" id="list-mode-label">Provinces <span id="pcount" style="color:var(--t1);font-family:var(--mono)">0</span></span>
     </div>
     <div class="p-body">
       <div class="sw"><span class="sw-ic">&#x2315;</span><input id="sd" placeholder="Search province or region..." oninput="renderList('d')"></div>
@@ -334,7 +360,7 @@ body{min-height:100dvh;background:var(--bg);color:var(--t1);font-family:var(--fo
   <!-- Mobile selector (between map + comparison on mobile) -->
   <div class="mob-sel" id="mob-sel">
     <div class="mob-sel-hdr">
-      <span class="mob-sel-t">Select Provinces <span id="mob-cnt" style="color:var(--t1);font-family:var(--mono)">0</span>/4</span>
+      <span class="mob-sel-t" id="mob-list-label">Select Provinces <span id="mob-cnt" style="color:var(--t1);font-family:var(--mono)">0</span>/4</span>
       <button class="clr-btn" onclick="clearSel()">&#x2715; Clear</button>
     </div>
     <div class="chips" id="chips"></div>
@@ -401,7 +427,7 @@ const NAME_MAP={
   'Khon Kaen':'Khon Kaen','Udon Thani':'Udon Thani','Ubon Ratchathani':'Ubon Ratchathani',
   'Loei':'Loei','Nong Khai':'Nong Khai','Sakon Nakhon':'Sakon Nakhon',
   'Nakhon Phanom':'Nakhon Phanom','Mukdahan':'Mukdahan','Roi Et':'Roi Et',
-  'Kalasin':'Kalasin','Maha Sarakham':'Maha Sarakham','Buriram':'Buriram','Surin':'Surin',
+  'Kalasin':'Kalasin','Maha Sarakham':'Maha Sarakham','Buriram':'Buri Ram','Surin':'Surin',
   'Si Sa Ket':'Si Sa Ket','Amnat Charoen':'Amnat Charoen','Yasothon':'Yasothon',
   'Chaiyaphum':'Chaiyaphum','Bueng Kan':'Bueng Kan','Nong Bua Lam Phu':'Nong Bua Lam Phu',
   'Phitsanulok':'Phitsanulok','Tak':'Tak','Kamphaeng Phet':'Kamphaeng Phet',
@@ -424,12 +450,9 @@ const BASE={
   'Bangkok':{idx:92,rent:18500,meal:6200,trans:2400,groc:3200,util:1800,reg:'Bangkok',mealUnit:120,transUnit:'BTS 44฿/trip'},
   'Phuket':{idx:88,rent:22000,meal:7800,trans:2800,groc:3800,util:2200,reg:'South',mealUnit:150,transUnit:'Grab ~85฿'},
   'Nonthaburi':{idx:80,rent:20000,meal:6000,trans:2300,groc:3200,util:1800,reg:'Bangkok',mealUnit:115,transUnit:'MRT 28฿/trip'},
-  'Koh Samui':{idx:85,rent:28000,meal:8500,trans:2800,groc:4000,util:2400,reg:'South',mealUnit:160,transUnit:'Grab ~120฿'},
-  'Pattaya':{idx:78,rent:21000,meal:6500,trans:2200,groc:3200,util:1800,reg:'Central',mealUnit:120,transUnit:'Baht bus 10฿'},
   'Samut Prakan':{idx:74,rent:13500,meal:5200,trans:2200,groc:2950,util:1550,reg:'Bangkok',mealUnit:98,transUnit:'BTS 30฿/trip'},
   'Krabi':{idx:72,rent:13000,meal:5100,trans:1900,groc:2900,util:1500,reg:'South',mealUnit:95,transUnit:'Songthaew 30฿'},
   'Pathum Thani':{idx:71,rent:12500,meal:4800,trans:2100,groc:2850,util:1480,reg:'Bangkok',mealUnit:90,transUnit:'Bus 15฿/trip'},
-  'Hua Hin':{idx:72,rent:18000,meal:5200,trans:1900,groc:2900,util:1600,reg:'Central',mealUnit:110,transUnit:'Songthaew 20฿'},
   'Chon Buri':{idx:62,rent:15000,meal:4000,trans:1700,groc:2500,util:1300,reg:'Central',mealUnit:75,transUnit:'Bus 20฿'},
   'Phang Nga':{idx:65,rent:10500,meal:4300,trans:1800,groc:2700,util:1380,reg:'South',mealUnit:80,transUnit:'Songthaew 30฿'},
   'Samut Sakhon':{idx:65,rent:10000,meal:4100,trans:1700,groc:2650,util:1350,reg:'Bangkok',mealUnit:75,transUnit:'Bus 15฿'},
@@ -503,12 +526,49 @@ const BASE={
   'Trat':{idx:44,rent:5500,meal:4800,trans:1100,groc:1900,util:950,reg:'Central',mealUnit:120,transUnit:'Songthaew 20฿',limited:true},
 };
 
+
+/* ── MAJOR CITIES (separate from 77 provinces) ─────────────────────────────
+   Bangkok, Phuket, Chiang Mai also exist in BASE so their GeoJSON polygons
+   stay coloured on the map. Pattaya, Hua Hin, Koh Samui: list-only. */
+const CITIES={
+  'Bangkok':   {idx:92,rent:18500,meal:6200,trans:2400,groc:3200,util:1800,reg:'Bangkok', mealUnit:120,transUnit:'BTS 44฿/trip'},
+  'Phuket':    {idx:88,rent:22000,meal:7800,trans:2800,groc:3800,util:2200,reg:'South',   mealUnit:150,transUnit:'Grab ~85฿'},
+  'Koh Samui': {idx:85,rent:28000,meal:8500,trans:2800,groc:4000,util:2400,reg:'South',   mealUnit:160,transUnit:'Grab ~120฿'},
+  'Pattaya':   {idx:78,rent:21000,meal:6500,trans:2200,groc:3200,util:1800,reg:'Central', mealUnit:120,transUnit:'Baht bus 10฿'},
+  'Hua Hin':   {idx:72,rent:18000,meal:5200,trans:1900,groc:2900,util:1600,reg:'Central', mealUnit:110,transUnit:'Songthaew 20฿'},
+  'Chiang Mai':{idx:58,rent:8500, meal:3500,trans:1400,groc:2400,util:1200,reg:'North',   mealUnit:65, transUnit:'Songthaew 30฿'},
+};
+const CITY_LIST=Object.entries(CITIES).map(([n,d])=>({name:n,...d})).sort((a,b)=>b.idx-a.idx);
+
+const SEASON_MULT={
+  'Bangkok':   {rent:1.20,meal:1.10,trans:1.10,groc:1.05,util:1.08},
+  'Phuket':    {rent:1.55,meal:1.18,trans:1.15,groc:1.08,util:1.10},
+  'Koh Samui': {rent:1.50,meal:1.20,trans:1.15,groc:1.10,util:1.10},
+  'Pattaya':   {rent:1.35,meal:1.12,trans:1.12,groc:1.06,util:1.08},
+  'Hua Hin':   {rent:1.40,meal:1.15,trans:1.12,groc:1.07,util:1.08},
+  'Chiang Mai':{rent:1.22,meal:1.10,trans:1.10,groc:1.05,util:1.07},
+};
+
+/* Maps a city name to its containing province name (BASE key / GeoJSON polygon).
+   Used to highlight the right province on the map when a city is selected. */
+const CITY_PROV={
+  'Bangkok':    'Bangkok',
+  'Phuket':     'Phuket',
+  'Koh Samui':  'Surat Thani',
+  'Pattaya':    'Chon Buri',
+  'Hua Hin':    'Prachuap Khiri Khan',
+  'Chiang Mai': 'Chiang Mai',
+};
+/* Reverse map: province name → city name(s) that sit inside it */
+const PROV_CITY=Object.fromEntries(Object.entries(CITY_PROV).map(([c,p])=>[p,c]));
+
+
 const PROVS=Object.entries(BASE).map(([n,d])=>({name:n,...d})).sort((a,b)=>b.idx-a.idx);
 
 /* ─────────────────────────────────────────────────────────────────────────────
    STATE
 ───────────────────────────────────────────────────────────────────────────── */
-let sel=['Bangkok','Chiang Mai'],viewMode='provinces',lifestyle='avg',hhType='single';
+let sel=['Bangkok','Chiang Mai'],viewMode='provinces',lifestyle='avg',hhType='single',listMode='provinces',currentSeason='high';
 let geoData=null,proj=null;
 let tr={k:1,x:0,y:0},isDrag=false,lastM={x:0,y:0},clickStart={x:0,y:0},hovName=null;
 let lastTouchDist=null,touchStart=null;
@@ -523,12 +583,15 @@ function getColor(idx){
 function fmt(n){return Math.round(n).toLocaleString()+'฿';}
 function applyMults(base,ls,hh){
   const lm=LS_MULT[ls],hm=HH_MULT[hh];
+  const sm=currentSeason==='high'&&base.name&&SEASON_MULT[base.name]
+    ?SEASON_MULT[base.name]
+    :{rent:1,meal:1,trans:1,groc:1,util:1};
   return{
-    rent: Math.round(base.rent *lm.rent *hm.rent),
-    meal: Math.round(base.meal *lm.meal *hm.meal),
-    trans:Math.round(base.trans*lm.trans*hm.trans),
-    groc: Math.round(base.groc *lm.groc *hm.groc),
-    util: Math.round(base.util *lm.util *hm.util),
+    rent: Math.round(base.rent *lm.rent *hm.rent *sm.rent),
+    meal: Math.round(base.meal *lm.meal *hm.meal *sm.meal),
+    trans:Math.round(base.trans*lm.trans*hm.trans*sm.trans),
+    groc: Math.round(base.groc *lm.groc *hm.groc *sm.groc),
+    util: Math.round(base.util *lm.util *hm.util *sm.util),
   };
 }
 function tot(c){return c.rent+c.meal+c.trans+c.groc+c.util;}
@@ -562,6 +625,31 @@ function setView(v){
   document.getElementById('btn-region').classList.toggle('on',v==='regions');
   renderAll();
 }
+/* Switch between provinces list and major cities list */
+function setSeason(s){
+  currentSeason=s;
+  document.getElementById('season-low').classList.toggle('on',s==='low');
+  document.getElementById('season-high').classList.toggle('on',s==='high');
+  renderList(null);
+  renderComparison();
+}
+
+function setListMode(mode){
+  listMode=mode;
+  document.getElementById('stat-prov-btn').classList.toggle('stat-mode-on',mode==='provinces');
+  document.getElementById('stat-city-btn').classList.toggle('stat-mode-on',mode==='cities');
+  const sw=document.getElementById('season-wrap');
+  if(sw)sw.classList.toggle('visible',mode==='cities');
+  const lbl=mode==='cities'?'Major Cities':'Provinces';
+  const el=document.getElementById('list-mode-label');
+  if(el)el.firstChild.textContent=lbl+' ';
+  const mel=document.getElementById('mob-list-label');
+  if(mel)mel.firstChild.textContent='Select '+lbl+' ';
+  document.getElementById('sd').value='';
+  document.getElementById('sm').value='';
+  renderList(null);
+  renderComparison();
+}
 function toggleSel(name){
   if(sel.includes(name))sel=sel.filter(s=>s!==name);
   else if(sel.length<4)sel=[...sel,name];
@@ -580,16 +668,24 @@ function buildProj(geo){
 }
 
 function getFeatData(feat){
+  /* Priority 1: exact match via NAME_MAP or direct key equality */
   const raw=(feat.properties.NAME_1||feat.properties.name||feat.properties.NAME||'').trim();
+  const rawL=raw.toLowerCase();
   for(const[pname,pd]of Object.entries(BASE)){
     const m=NAME_MAP[pname]||pname;
-    if(raw===m||raw===pname||raw.toLowerCase()===pname.toLowerCase()||raw.toLowerCase()===m.toLowerCase())
+    if(raw===m||raw===pname||rawL===pname.toLowerCase()||rawL===m.toLowerCase())
       return{name:pname,...pd};
   }
-  for(const[pname,pd]of Object.entries(BASE)){
-    const fn0=raw.toLowerCase().split(' ')[0],pn0=pname.toLowerCase().split(' ')[0];
-    if(fn0.length>3&&(fn0===pn0||raw.toLowerCase().includes(pn0)||pname.toLowerCase().includes(fn0)))
-      return{name:pname,...pd};
+  /* Priority 2: strict first-word match only (avoids over-matching) */
+  const fn0=rawL.split(' ')[0];
+  if(fn0.length>=4){
+    for(const[pname,pd]of Object.entries(BASE)){
+      const pn0=pname.toLowerCase().split(' ')[0];
+      /* Both first-words must be identical, or one must start the other (len>=5) */
+      if(fn0===pn0)return{name:pname,...pd};
+      if(fn0.length>=5&&pn0.length>=5&&(fn0.startsWith(pn0)||pn0.startsWith(fn0)))
+        return{name:pname,...pd};
+    }
   }
   return null;
 }
@@ -602,11 +698,17 @@ function drawMap(){
   ctx.save();ctx.translate(tr.x,tr.y);ctx.scale(tr.k,tr.k);
   geoData.features.forEach(feat=>{
     const pd=getFeatData(feat),fname=(feat.properties.NAME_1||feat.properties.name||'');
-    const isHov=hovName===fname,isSel=pd&&sel.includes(pd.name);
+    const isHov=hovName===fname;
+    /* isSel: direct match OR city in sel whose province polygon this is */
+    const directIdx=pd?sel.indexOf(pd.name):-1;
+    const cityIdx=pd?sel.findIndex(c=>CITY_PROV[c]===pd.name):-1;
+    const selIdx=directIdx>=0?directIdx:cityIdx;  /* which sel slot caused highlight */
+    const isSel=selIdx>=0;
     let fill=pd?(viewMode==='regions'?RCOLS[pd.reg]||'#334155':getColor(pd.idx)):'#1e2d4a';
-    ctx.beginPath();pg(feat);ctx.fillStyle=fill+(isHov?'cc':isSel?'ee':'55');ctx.fill();
+    const selAccent=isSel?CCOLS[selIdx]||'#fff':'#fff';
+    ctx.beginPath();pg(feat);ctx.fillStyle=fill+(isHov?'cc':isSel?'dd':'55');ctx.fill();
     ctx.beginPath();pg(feat);
-    if(isSel){ctx.strokeStyle='#fff';ctx.lineWidth=2/tr.k;}
+    if(isSel){ctx.strokeStyle=selAccent;ctx.lineWidth=2.5/tr.k;}
     else if(isHov){ctx.strokeStyle=fill+'ee';ctx.lineWidth=1.5/tr.k;}
     else{ctx.strokeStyle='rgba(4,13,26,.85)';ctx.lineWidth=0.8/tr.k;}
     ctx.stroke();
@@ -614,10 +716,15 @@ function drawMap(){
       const[cx,cy]=proj(d3.geoCentroid(feat));
       const fs=Math.max(8,Math.round(10/tr.k));
       ctx.font=(isSel?'600 ':'500 ')+fs+'px Inter,sans-serif';
-      ctx.fillStyle=isSel?'#fff':'rgba(255,255,255,.88)';
+      ctx.fillStyle=isSel?selAccent:'rgba(255,255,255,.88)';
       ctx.textAlign='center';ctx.textBaseline='middle';
       ctx.shadowColor='rgba(0,0,0,.95)';ctx.shadowBlur=5/tr.k;
-      ctx.fillText(pd.name.length>13?pd.name.slice(0,12)+'...':pd.name,cx,cy);
+      /* Show city name when highlight comes from a city selection */
+      const displayName=isSel&&cityIdx>=0&&!isHov
+        ?(PROV_CITY[pd.name]||pd.name)
+        :pd.name;
+      const short=displayName.length>13?displayName.slice(0,12)+'...':displayName;
+      ctx.fillText(short,cx,cy);
       ctx.shadowBlur=0;ctx.textBaseline='alphabetic';
     }
   });
@@ -643,10 +750,14 @@ function showTT(pd,x,y){
   const lc=LS_META[lifestyle].color,total=tot(cats);
   const el=document.getElementById('map-tt');
   el.style.borderColor=c+'50';
+  const cityInProv=PROV_CITY[pd.name];
+  const cityTag=cityInProv&&cityInProv!==pd.name
+    ?` <span style="font-size:8px;color:#60a5fa;background:rgba(96,165,250,.1);border:1px solid rgba(96,165,250,.2);border-radius:3px;padding:1px 5px">${cityInProv}</span>`
+    :'';
   el.innerHTML=`
     <div style="display:flex;align-items:center;gap:7px;margin-bottom:4px">
       <div style="width:9px;height:9px;border-radius:50%;background:${c};flex-shrink:0"></div>
-      <div class="tt-name">${pd.name}${pd.limited?` <span style="font-size:8px;color:#f59e0b;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.2);border-radius:3px;padding:1px 4px">Limited</span>`:''}</div>
+      <div class="tt-name">${pd.name}${cityTag}${pd.limited?` <span style="font-size:8px;color:#f59e0b;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.2);border-radius:3px;padding:1px 4px">Limited</span>`:''}</div>
     </div>
     <div class="tt-meta">${pd.reg} &middot; Index ${pd.idx}/100 &middot; <span style="color:${lc}">${LS_META[lifestyle].label}</span></div>
     <div class="tt-grid">
@@ -772,6 +883,7 @@ async function loadGeo(){
     try{
       const r=await fetch(url);if(!r.ok)continue;
       const geo=await r.json();
+
       geoData=geo;buildProj(geo);
       document.getElementById('map-loading').style.display='none';
       drawMap();return;
@@ -784,22 +896,28 @@ async function loadGeo(){
    RENDER FUNCTIONS
 ───────────────────────────────────────────────────────────────────────────── */
 function renderStats(){
-  const t=PROVS.length,avg=Math.round(PROVS.reduce((s,p)=>s+p.idx,0)/t);
-  const cheap=PROVS[t-1],exp=PROVS[0];
+  const t=PROVS.length;
   document.getElementById('stats-row').innerHTML=`
-    <div class="stat"><div class="stat-lbl">PROVINCES</div><div class="stat-val">${t}</div></div>
-    <div class="stat"><div class="stat-lbl">AVG INDEX</div><div class="stat-val">${avg}/100</div></div>
-    <div class="stat"><div class="stat-lbl">MOST EXPENSIVE</div><div class="stat-val" style="color:#ef4444;font-size:11px">${exp.name}</div></div>
-    <div class="stat"><div class="stat-lbl">CHEAPEST</div><div class="stat-val" style="color:#4ade80;font-size:11px">${cheap.name}</div></div>`;
-  document.getElementById('pcount').textContent=t;
+    <div class="stat stat-btn stat-mode-on" id="stat-prov-btn" onclick="setListMode('provinces')" title="Show all 77 provinces">
+      <div class="stat-lbl">PROVINCES</div><div class="stat-val">${t}</div>
+    </div>
+    <div class="stat stat-btn" id="stat-city-btn" onclick="setListMode('cities')" title="Bangkok, Phuket, Pattaya, Hua Hin, Koh Samui, Chiang Mai">
+      <div class="stat-lbl">MAJOR CITIES</div><div class="stat-val" style="font-size:12px">6 cities</div>
+    </div>`;
+  document.getElementById('pcount').textContent=listMode==='cities'?CITY_LIST.length:t;
 }
 
-/* Province list — renders into desktop sidebar AND mobile grid */
+/* Province / City list — renders desktop sidebar AND mobile grid.
+   Respects listMode ('provinces'|'cities') to pick the right dataset. */
 function renderList(target){
   const targets=target?[target]:['d','m'];
+  const dataset=listMode==='cities'?CITY_LIST:PROVS;
+  /* Always sync the count badge in the panel header */
+  const pcEl=document.getElementById('pcount');
+  if(pcEl)pcEl.textContent=dataset.length;
   targets.forEach(tgt=>{
     const q=(tgt==='d'?document.getElementById('sd'):document.getElementById('sm')).value.toLowerCase();
-    const fil=PROVS.filter(p=>p.name.toLowerCase().includes(q)||p.reg.toLowerCase().includes(q));
+    const fil=dataset.filter(p=>p.name.toLowerCase().includes(q)||p.reg.toLowerCase().includes(q));
     if(tgt==='d'){
       document.getElementById('pl-d').innerHTML=fil.map(p=>desktopItemHTML(p)).join('');
     }else{
@@ -865,10 +983,19 @@ function renderMapOverlays(){
 function renderComparison(){
   const panel=document.getElementById('comp-cards');
   if(!sel.length){
-    panel.innerHTML=`<div class="empty"><div class="empty-ic">&#x1F5FA;&#xFE0F;</div><div class="empty-t">No provinces selected</div><div class="empty-s">Click the map or use the list below<br>to compare up to 4 provinces</div></div>`;
+    const emptyLabel=listMode==='cities'?'No cities selected':'No provinces selected';
+    const emptySub=listMode==='cities'
+      ?'Select from the Major Cities list to compare'
+      :'Click the map or list to compare up to 4';
+    panel.innerHTML=`<div class="empty"><div class="empty-ic">&#x1F5FA;&#xFE0F;</div><div class="empty-t">${emptyLabel}</div><div class="empty-s">${emptySub}</div></div>`;
     return;
   }
-  const cards=sel.map(n=>({name:n,base:BASE[n],cats:applyMults(BASE[n],lifestyle,hhType)})).filter(d=>d.base);
+  const cards=sel.map(n=>{
+    const raw=BASE[n]??CITIES[n];
+    if(!raw)return null;
+    const base={...raw,name:n};
+    return{name:n,base,cats:applyMults(base,lifestyle,hhType)};
+  }).filter(Boolean);
   const totals=cards.map(d=>tot(d.cats));
   const maxT=Math.max(...totals);
   const lsm=LS_META[lifestyle];
@@ -906,7 +1033,7 @@ function renderComparison(){
           </div>`;
         }).join('')}
       </div>
-      <div class="cmp-foot">Monthly estimates &middot; <span style="color:${lsm.color}">${lsm.label}</span> mode &middot; ${hhLabel} household &middot; food &amp; transport based on avg local usage</div>
+      <div class="cmp-foot">Monthly est. &middot; <span style="color:${lsm.color}">${lsm.label}</span> &middot; ${hhLabel}${SEASON_MULT[d.name]?' &middot; <span class="season-pill '+currentSeason+'">'+(currentSeason==='high'?'☀️ High Season (Nov&ndash;Feb)':'🌧️ Low Season (May&ndash;Oct)')+'</span>':''}</div>
     </div>`;
   }).join('');
 
