@@ -6,16 +6,16 @@
 <title>ThaiLifeCost v4 — Thailand Cost of Living</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Barlow+Condensed:wght@500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 /* ── TOKENS ── */
 :root{
-  --bg:#070d1f;--s1:#0e1729;--s2:#131e33;--s3:#192440;
+  --bg:#080a0f;--s1:#0f1117;--s2:#161921;--s3:#1d2130;
   --bd:rgba(255,255,255,.07);--bd2:rgba(255,255,255,.14);
-  --t1:#e8edf5;--t2:#7a8aaa;--t3:#3d4f6e;
-  --amber:#f59e0b;--r-sm:8px;--r-md:12px;--r-lg:16px;
+  --t1:#edeae0;--t2:#6b6b80;--t3:#3e3e52;
+  --amber:#f5a623;--r-sm:8px;--r-md:12px;--r-lg:16px;
   --sh-sm:0 1px 4px rgba(0,0,0,.45);--sh-md:0 4px 18px rgba(0,0,0,.55);--sh-lg:0 12px 40px rgba(0,0,0,.65);
-  --font:'Inter',system-ui,sans-serif;--mono:'JetBrains Mono','Courier New',monospace;
+  --font:'Inter',system-ui,sans-serif;--mono:'Barlow Condensed',sans-serif;
   --ease:cubic-bezier(.25,.46,.45,.94);
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -29,8 +29,8 @@ body{min-height:100dvh;background:var(--bg);color:var(--t1);font-family:var(--fo
 /* ── HEADER ── */
 .hdr{display:flex;align-items:center;justify-content:space-between;padding:11px 20px;gap:10px;flex-shrink:0;flex-wrap:wrap;background:var(--s1);border-bottom:1px solid var(--bd);z-index:60}
 .logo{display:flex;align-items:center;gap:10px}
-.logo-badge{width:32px;height:32px;border-radius:var(--r-sm);background:linear-gradient(135deg,#f59e0b,#ef4444);display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 4px 12px rgba(245,158,11,.3);flex-shrink:0}
-.logo-title{font-size:15px;font-weight:800;letter-spacing:-.3px;line-height:1.1;background:linear-gradient(90deg,#f59e0b,#ef4444);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.logo-badge{width:32px;height:32px;border-radius:var(--r-sm);background:#f5a623;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.logo-title{font-family:'Barlow Condensed',sans-serif;font-size:19px;font-weight:900;letter-spacing:.3px;line-height:1}.logo-title .lt-a{color:#edeae0}.logo-title .lt-b{color:#f5a623}
 .logo-sub{font-size:10px;color:var(--t2)}
 .pill-grp{display:flex;gap:2px;padding:3px;background:var(--s2);border-radius:var(--r-sm);border:1px solid var(--bd)}
 .pill{padding:5px 12px;border-radius:6px;border:none;cursor:pointer;font-size:11px;font-weight:500;font-family:var(--font);transition:all .2s var(--ease);background:transparent;color:var(--t2)}
@@ -46,9 +46,9 @@ body{min-height:100dvh;background:var(--bg);color:var(--t1);font-family:var(--fo
 .ls-grp{display:flex;gap:3px;padding:3px;background:var(--bg);border-radius:var(--r-sm);border:1px solid var(--bd)}
 .ls-btn{display:flex;align-items:center;gap:5px;padding:5px 13px;border-radius:6px;border:none;cursor:pointer;font-size:11px;font-weight:500;font-family:var(--font);transition:all .2s var(--ease);white-space:nowrap;background:transparent;color:var(--t2)}
 .ls-btn:hover:not(.on){background:rgba(255,255,255,.04);color:var(--t1)}
-.ls-btn.thai.on{background:rgba(52,211,153,.15);color:#34d399;border:1px solid rgba(52,211,153,.25)}
-.ls-btn.avg.on{background:rgba(245,158,11,.15);color:#f59e0b;border:1px solid rgba(245,158,11,.25)}
-.ls-btn.hiso.on{background:rgba(239,68,68,.15);color:#ef4444;border:1px solid rgba(239,68,68,.25)}
+.ls-btn.thai.on{background:rgba(31,209,120,.15);color:#1fd178;border:1px solid rgba(31,209,120,.25)}
+.ls-btn.avg.on{background:rgba(245,166,35,.15);color:#f5a623;border:1px solid rgba(245,166,35,.25)}
+.ls-btn.hiso.on{background:rgba(232,66,58,.15);color:#e8423a;border:1px solid rgba(232,66,58,.25)}
 .ls-desc{font-size:10px;color:var(--t2);flex:1}
 .season-wrap{display:none;align-items:center;gap:8px;margin-left:auto;flex-shrink:0}
 .season-wrap.visible{display:flex}
@@ -56,17 +56,17 @@ body{min-height:100dvh;background:var(--bg);color:var(--t1);font-family:var(--fo
 .season-grp{display:flex;gap:0;padding:2px;background:var(--bg);border-radius:var(--r-sm);border:1px solid var(--bd)}
 .season-btn{display:flex;align-items:center;gap:4px;padding:5px 11px;border-radius:6px;border:none;cursor:pointer;font-size:10px;font-weight:600;font-family:var(--font);transition:all .2s var(--ease);white-space:nowrap;background:transparent;color:var(--t2)}
 .season-btn:hover:not(.on){background:rgba(255,255,255,.04);color:var(--t1)}
-.season-btn.low.on{background:rgba(96,165,250,.15);color:#60a5fa;border:1px solid rgba(96,165,250,.3)}
-.season-btn.high.on{background:rgba(251,191,36,.15);color:#fbbf24;border:1px solid rgba(251,191,36,.3)}
+.season-btn.low.on{background:rgba(74,158,255,.15);color:#4a9eff;border:1px solid rgba(74,158,255,.3)}
+.season-btn.high.on{background:rgba(247,185,85,.15);color:#f7b955;border:1px solid rgba(247,185,85,.3)}
 .season-pill{display:inline-flex;align-items:center;gap:4px;padding:2px 7px;border-radius:10px;font-size:9px;font-weight:600;font-family:var(--mono)}
-.season-pill.low{background:rgba(96,165,250,.12);color:#60a5fa;border:1px solid rgba(96,165,250,.25)}
-.season-pill.high{background:rgba(251,191,36,.12);color:#fbbf24;border:1px solid rgba(251,191,36,.25)}
+.season-pill.low{background:rgba(74,158,255,.12);color:#4a9eff;border:1px solid rgba(74,158,255,.25)}
+.season-pill.high{background:rgba(247,185,85,.12);color:#f7b955;border:1px solid rgba(247,185,85,.25)}
 
 /* ── STATS ── */
 .stats{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;padding:10px 16px;flex-shrink:0}
 .stat-btn{cursor:pointer;user-select:none;transition:all .2s var(--ease)}
 .stat-btn:hover{border-color:var(--bd2);background:var(--s2)}
-.stat-mode-on{border-color:var(--amber)!important;background:rgba(245,158,11,.08)!important}
+.stat-mode-on{border-color:var(--amber)!important;background:rgba(245,166,35,.08)!important}
 .stat-mode-on .stat-lbl{color:var(--amber)}
 .stat-mode-on .stat-val{color:var(--amber)}
 .stat{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r-md);padding:10px 14px;transition:border-color .2s}
@@ -98,21 +98,21 @@ body{min-height:100dvh;background:var(--bg);color:var(--t1);font-family:var(--fo
 .pi-reg{font-size:9px;color:var(--t2)}
 .pi-bud{font-size:10px;color:var(--t2);font-family:var(--mono);flex-shrink:0;white-space:nowrap}
 .pi-badge{width:16px;height:16px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:800;color:#000}
-.lim-tag{font-size:7px;font-weight:600;color:#f59e0b;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.2);border-radius:3px;padding:1px 4px;flex-shrink:0}
+.lim-tag{font-size:7px;font-weight:600;color:#f5a623;background:rgba(245,166,35,.1);border:1px solid rgba(245,166,35,.2);border-radius:3px;padding:1px 4px;flex-shrink:0}
 
 /* ── MAP ── */
-.map-panel{position:relative;border-radius:var(--r-lg);overflow:hidden;background:#040d1a;border:1px solid var(--bd);box-shadow:var(--sh-md)}
+.map-panel{position:relative;border-radius:var(--r-lg);overflow:hidden;background:#07080d;border:1px solid var(--bd);box-shadow:var(--sh-md)}
 #mc{display:block;width:100%;height:100%;cursor:crosshair;touch-action:none}
 /* ALL overlays inside the map use pointer-events:none so they NEVER block canvas clicks */
 .map-ot{position:absolute;top:10px;left:10px;z-index:10;display:flex;flex-wrap:wrap;gap:4px;max-width:calc(100% - 20px);pointer-events:none}
 .map-tag{padding:3px 9px;border-radius:20px;font-size:9px;font-family:var(--mono);font-weight:700;color:#000;box-shadow:0 2px 6px rgba(0,0,0,.4);pointer-events:none}
-.map-leg{position:absolute;bottom:10px;right:10px;z-index:10;background:rgba(4,13,26,.93);border:1px solid var(--bd);border-radius:var(--r-md);padding:10px 12px;backdrop-filter:blur(8px);pointer-events:none}
+.map-leg{position:absolute;bottom:10px;right:10px;z-index:10;background:rgba(7,8,13,.93);border:1px solid var(--bd);border-radius:var(--r-md);padding:10px 12px;backdrop-filter:blur(8px);pointer-events:none}
 .leg-t{font-size:8px;font-weight:700;color:var(--t2);letter-spacing:1px;margin-bottom:6px}
 .leg-r{display:flex;align-items:center;gap:6px;margin-bottom:4px}
 .leg-b{width:22px;height:5px;border-radius:2px}
 .leg-l{font-size:8px;color:var(--t2);font-family:var(--mono)}
 .map-hint{position:absolute;bottom:10px;left:10px;z-index:10;font-size:9px;color:rgba(255,255,255,.18);font-family:var(--mono);pointer-events:none}
-.map-loading{position:absolute;inset:0;z-index:20;background:#040d1a;display:flex;align-items:center;justify-content:center;gap:10px;font-size:12px;color:var(--t2);font-family:var(--mono);pointer-events:none}
+.map-loading{position:absolute;inset:0;z-index:20;background:#07080d;display:flex;align-items:center;justify-content:center;gap:10px;font-size:12px;color:var(--t2);font-family:var(--mono);pointer-events:none}
 .spin{display:inline-block;animation:spin 1s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
@@ -121,7 +121,7 @@ body{min-height:100dvh;background:var(--bg);color:var(--t1);font-family:var(--fo
 .tt-name{font-size:13px;font-weight:700;line-height:1.2;margin-bottom:3px}
 .tt-meta{font-size:10px;color:var(--t2);font-family:var(--mono);margin-bottom:9px}
 .tt-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px 8px}
-.tt-item{font-size:10px;color:#94a3b8;font-family:var(--mono)}
+.tt-item{font-size:10px;color:#8a8798;font-family:var(--mono)}
 .tt-tot{margin-top:9px;padding-top:9px;border-top:1px solid var(--bd);font-size:11px;font-weight:700;font-family:var(--mono)}
 
 /* ── COMPARISON PANEL (the big redesign for readability) ── */
@@ -180,9 +180,9 @@ body{min-height:100dvh;background:var(--bg);color:var(--t1);font-family:var(--fo
 @keyframes fadein{from{opacity:0}to{opacity:1}}
 .modal-box{background:var(--s1);border:1px solid var(--bd2);border-radius:var(--r-lg);padding:28px 24px;max-width:480px;width:100%;box-shadow:var(--sh-lg);animation:slideup .3s var(--ease)}
 @keyframes slideup{from{transform:translateY(14px);opacity:0}to{transform:translateY(0);opacity:1}}
-.m-title{font-size:20px;font-weight:800;letter-spacing:-.4px;background:linear-gradient(90deg,#f59e0b,#ef4444);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:4px}
+.m-title{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:800;letter-spacing:0;color:#edeae0;margin-bottom:4px}.m-title .mt-b{color:#f5a623}
 .m-sub{font-size:11px;color:var(--t2);font-family:var(--mono);margin-bottom:14px}
-.m-body{font-size:12px;color:#94a3b8;line-height:1.7;margin-bottom:14px}
+.m-body{font-size:12px;color:#8a8798;line-height:1.7;margin-bottom:14px}
 .m-body ul{margin:8px 0;padding-left:6px}
 .m-body li{list-style:none;padding-left:14px;position:relative;margin-bottom:4px}
 .m-body li::before{content:"•";position:absolute;left:0;color:var(--amber)}
@@ -194,7 +194,7 @@ body{min-height:100dvh;background:var(--bg);color:var(--t1);font-family:var(--fo
 .m-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .m-check{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--t2);cursor:pointer}
 .m-check input{cursor:pointer;accent-color:var(--amber);width:14px;height:14px}
-.m-cta{padding:10px 22px;border-radius:var(--r-sm);border:none;cursor:pointer;font-size:12px;font-weight:700;font-family:var(--font);background:linear-gradient(135deg,#f59e0b,#ef4444);color:#000;box-shadow:0 4px 14px rgba(245,158,11,.3);transition:opacity .2s,transform .15s}
+.m-cta{padding:10px 22px;border-radius:var(--r-sm);border:none;cursor:pointer;font-size:12px;font-weight:700;font-family:var(--font);background:#f5a623;color:#000;text-shadow:-1px -1px 0 #fff,1px -1px 0 #fff,-1px 1px 0 #fff,1px 1px 0 #fff;transition:opacity .2s,transform .15s}
 .m-cta:hover{opacity:.88;transform:translateY(-1px)}
 
 /* ── MOBILE PROVINCE SELECTOR ── */
@@ -259,7 +259,7 @@ body{min-height:100dvh;background:var(--bg);color:var(--t1);font-family:var(--fo
 <!-- MODAL -->
 <div class="modal-bg" id="modal" style="display:none" onclick="if(event.target===this)closeModal()">
   <div class="modal-box">
-    <div class="m-title">Welcome to ThaiLifeCost</div>
+    <div class="m-title">Welcome to <span class="mt-a">ThaiLife</span><span class="mt-b">Cost</span></div>
     <div class="m-sub">Thailand cost-of-living comparator &middot; Numbeo data + local contributions</div>
     <div class="m-body">
       This tool provides <strong style="color:var(--t1)">average monthly estimates</strong> across Thailand's provinces. Real costs vary based on:
@@ -272,19 +272,19 @@ body{min-height:100dvh;background:var(--bg);color:var(--t1);font-family:var(--fo
       Use the <strong style="color:var(--amber)">3 Lifestyle Modes</strong> to model your scenario:
     </div>
     <div class="m-modes">
-      <div class="m-mode" style="background:rgba(52,211,153,.07);border-color:rgba(52,211,153,.25)">
+      <div class="m-mode" style="background:rgba(31,209,120,.07);border-color:rgba(31,209,120,.25)">
         <div class="m-mode-ic">&#x1F6F5;</div>
-        <div class="m-mode-nm" style="color:#34d399">Thai Style</div>
+        <div class="m-mode-nm" style="color:#1fd178">Thai Style</div>
         <div class="m-mode-d">Street food, local market, scooter. -25 to -40%</div>
       </div>
-      <div class="m-mode" style="background:rgba(245,158,11,.07);border-color:rgba(245,158,11,.25)">
+      <div class="m-mode" style="background:rgba(245,166,35,.07);border-color:rgba(245,166,35,.25)">
         <div class="m-mode-ic">&#x1F30F;</div>
-        <div class="m-mode-nm" style="color:#f59e0b">Farang Avg</div>
+        <div class="m-mode-nm" style="color:#f5a623">Farang Avg</div>
         <div class="m-mode-d">Numbeo averages. Default reference mode.</div>
       </div>
-      <div class="m-mode" style="background:rgba(239,68,68,.07);border-color:rgba(239,68,68,.25)">
+      <div class="m-mode" style="background:rgba(232,66,58,.07);border-color:rgba(232,66,58,.25)">
         <div class="m-mode-ic">&#x1F942;</div>
-        <div class="m-mode-nm" style="color:#ef4444">Hi-So</div>
+        <div class="m-mode-nm" style="color:#e8423a">Hi-So</div>
         <div class="m-mode-d">Luxury condo, restaurants, Grab. +50-100%</div>
       </div>
     </div>
@@ -300,9 +300,9 @@ body{min-height:100dvh;background:var(--bg);color:var(--t1);font-family:var(--fo
 
 <header class="hdr">
   <div class="logo">
-    <div class="logo-badge">&#x1F1F9;&#x1F1ED;</div>
+    
     <div>
-      <div class="logo-title">ThaiLifeCost</div>
+      <div class="logo-title"><span class="lt-a">ThaiLife</span><span class="lt-b">Cost</span></div>
       <div class="logo-sub">Interactive cost-of-living map &middot; 77 provinces</div>
     </div>
   </div>
@@ -391,8 +391,8 @@ body{min-height:100dvh;background:var(--bg);color:var(--t1);font-family:var(--fo
 /* ─────────────────────────────────────────────────────────────────────────────
    CONSTANTS
 ───────────────────────────────────────────────────────────────────────────── */
-const CCOLS=['#f59e0b','#60a5fa','#f472b6','#34d399'];
-const RCOLS={Bangkok:'#f59e0b',North:'#34d399',Northeast:'#60a5fa',Central:'#a78bfa',South:'#f472b6'};
+const CCOLS=['#f5a623','#4a9eff','#f472b6','#1fd178'];
+const RCOLS={Bangkok:'#f5a623',North:'#1fd178',Northeast:'#4a9eff',Central:'#a78bfa',South:'#f472b6'};
 
 /* Per-category household multipliers — FIX: each category scales differently */
 const HH_MULT={
@@ -406,9 +406,9 @@ const LS_MULT={
   hiso:{rent:1.85,meal:1.70,trans:1.80,groc:1.40,util:1.60},
 };
 const LS_META={
-  thai:{label:'Thai Style',desc:'Local street food, shared house, scooter rental. -25 to -40%.',color:'#34d399'},
-  avg :{label:'Farang Avg',desc:'Numbeo averages - mixed local & expat lifestyle. Standard reference.',color:'#f59e0b'},
-  hiso:{label:'Hi-So',     desc:'Luxury condo, restaurants, Grab & taxi. Comfortable expat lifestyle.',color:'#ef4444'},
+  thai:{label:'Thai Style',desc:'Local street food, shared house, scooter rental. -25 to -40%.',color:'#1fd178'},
+  avg :{label:'Farang Avg',desc:'Numbeo averages - mixed local & expat lifestyle. Standard reference.',color:'#f5a623'},
+  hiso:{label:'Hi-So',     desc:'Luxury condo, restaurants, Grab & taxi. Comfortable expat lifestyle.',color:'#e8423a'},
 };
 const CATS=[
   {k:'rent', l:'Rent',      ic:'&#x1F3E0;'},
@@ -577,7 +577,7 @@ let lastTouchDist=null,touchStart=null;
    HELPERS
 ───────────────────────────────────────────────────────────────────────────── */
 function getColor(idx){
-  if(idx>=85)return'#ef4444';if(idx>=72)return'#f97316';if(idx>=60)return'#f59e0b';
+  if(idx>=85)return'#e8423a';if(idx>=72)return'#f07030';if(idx>=60)return'#f5a623';
   if(idx>=48)return'#84cc16';if(idx>=36)return'#22c55e';return'#4ade80';
 }
 function fmt(n){return Math.round(n).toLocaleString()+'฿';}
@@ -692,7 +692,7 @@ function getFeatData(feat){
 
 function drawMap(){
   const c=document.getElementById('mc'),ctx=c.getContext('2d'),W=c.width,H=c.height;
-  ctx.clearRect(0,0,W,H);ctx.fillStyle='#040d1a';ctx.fillRect(0,0,W,H);
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#07080d';ctx.fillRect(0,0,W,H);
   if(!geoData||!proj)return;
   const pg=d3.geoPath().projection(proj).context(ctx);
   ctx.save();ctx.translate(tr.x,tr.y);ctx.scale(tr.k,tr.k);
@@ -704,13 +704,13 @@ function drawMap(){
     const cityIdx=pd?sel.findIndex(c=>CITY_PROV[c]===pd.name):-1;
     const selIdx=directIdx>=0?directIdx:cityIdx;  /* which sel slot caused highlight */
     const isSel=selIdx>=0;
-    let fill=pd?(viewMode==='regions'?RCOLS[pd.reg]||'#334155':getColor(pd.idx)):'#1e2d4a';
+    let fill=pd?(viewMode==='regions'?RCOLS[pd.reg]||'#3e3e52':getColor(pd.idx)):'#1d2130';
     const selAccent=isSel?CCOLS[selIdx]||'#fff':'#fff';
     ctx.beginPath();pg(feat);ctx.fillStyle=fill+(isHov?'cc':isSel?'dd':'55');ctx.fill();
     ctx.beginPath();pg(feat);
     if(isSel){ctx.strokeStyle=selAccent;ctx.lineWidth=2.5/tr.k;}
     else if(isHov){ctx.strokeStyle=fill+'ee';ctx.lineWidth=1.5/tr.k;}
-    else{ctx.strokeStyle='rgba(4,13,26,.85)';ctx.lineWidth=0.8/tr.k;}
+    else{ctx.strokeStyle='rgba(7,8,13,.85)';ctx.lineWidth=0.8/tr.k;}
     ctx.stroke();
     if((isHov||isSel)&&pd){
       const[cx,cy]=proj(d3.geoCentroid(feat));
@@ -752,12 +752,12 @@ function showTT(pd,x,y){
   el.style.borderColor=c+'50';
   const cityInProv=PROV_CITY[pd.name];
   const cityTag=cityInProv&&cityInProv!==pd.name
-    ?` <span style="font-size:8px;color:#60a5fa;background:rgba(96,165,250,.1);border:1px solid rgba(96,165,250,.2);border-radius:3px;padding:1px 5px">${cityInProv}</span>`
+    ?` <span style="font-size:8px;color:#4a9eff;background:rgba(74,158,255,.1);border:1px solid rgba(74,158,255,.2);border-radius:3px;padding:1px 5px">${cityInProv}</span>`
     :'';
   el.innerHTML=`
     <div style="display:flex;align-items:center;gap:7px;margin-bottom:4px">
       <div style="width:9px;height:9px;border-radius:50%;background:${c};flex-shrink:0"></div>
-      <div class="tt-name">${pd.name}${cityTag}${pd.limited?` <span style="font-size:8px;color:#f59e0b;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.2);border-radius:3px;padding:1px 4px">Limited</span>`:''}</div>
+      <div class="tt-name">${pd.name}${cityTag}${pd.limited?` <span style="font-size:8px;color:#f5a623;background:rgba(245,166,35,.1);border:1px solid rgba(245,166,35,.2);border-radius:3px;padding:1px 4px">Limited</span>`:''}</div>
     </div>
     <div class="tt-meta">${pd.reg} &middot; Index ${pd.idx}/100 &middot; <span style="color:${lc}">${LS_META[lifestyle].label}</span></div>
     <div class="tt-grid">
@@ -889,7 +889,7 @@ async function loadGeo(){
       drawMap();return;
     }catch(e){continue;}
   }
-  document.getElementById('map-loading').innerHTML='<span style="color:#ef4444">Could not load map GeoJSON</span>';
+  document.getElementById('map-loading').innerHTML='<span style="color:#e8423a">Could not load map GeoJSON</span>';
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -974,7 +974,7 @@ function renderMapOverlays(){
       +Object.entries(RCOLS).map(([r,c])=>`<div class="leg-r"><div class="leg-b" style="background:${c}"></div><span class="leg-l">${r}</span></div>`).join('')+lsRow;
   }else{
     document.getElementById('map-leg').innerHTML=`<div class="leg-t">COST INDEX</div>`
-      +[{l:'85-100',c:'#ef4444'},{l:'72-84',c:'#f97316'},{l:'60-71',c:'#f59e0b'},{l:'48-59',c:'#84cc16'},{l:'36-47',c:'#22c55e'},{l:'0-35',c:'#4ade80'}]
+      +[{l:'85-100',c:'#e8423a'},{l:'72-84',c:'#f07030'},{l:'60-71',c:'#f5a623'},{l:'48-59',c:'#84cc16'},{l:'36-47',c:'#22c55e'},{l:'0-35',c:'#4ade80'}]
       .map(x=>`<div class="leg-r"><div class="leg-b" style="background:${x.c}"></div><span class="leg-l">${x.l}</span></div>`).join('')+lsRow;
   }
 }
@@ -1009,7 +1009,7 @@ function renderComparison(){
     return `<div class="cmp-card" style="border-left-color:${c};border-top-color:${c}1a;border-right-color:${c}1a;border-bottom-color:${c}1a">
       <div class="cmp-top">
         <div>
-          <div class="cmp-name">${d.name}${base.limited?` <span style="font-size:9px;color:#f59e0b;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.2);border-radius:3px;padding:1px 5px">Limited</span>`:''}</div>
+          <div class="cmp-name">${d.name}${base.limited?` <span style="font-size:9px;color:#f5a623;background:rgba(245,166,35,.1);border:1px solid rgba(245,166,35,.2);border-radius:3px;padding:1px 5px">Limited</span>`:''}</div>
           <div class="cmp-region" style="color:${c}">${base.reg} &middot; Index ${base.idx}/100</div>
         </div>
         <div class="cmp-total-wrap">
